@@ -3,14 +3,16 @@ use crate::*;
 pub use decoder::CancelReplaceOrderResponseDecoder;
 pub use encoder::CancelReplaceOrderResponseEncoder;
 
+pub use crate::SBE_SCHEMA_ID;
+pub use crate::SBE_SCHEMA_VERSION;
+pub use crate::SBE_SEMANTIC_VERSION;
+
 pub const SBE_BLOCK_LENGTH: u16 = 2;
 pub const SBE_TEMPLATE_ID: u16 = 307;
-pub const SBE_SCHEMA_ID: u16 = 1;
-pub const SBE_SCHEMA_VERSION: u16 = 0;
-pub const SBE_SEMANTIC_VERSION: &str = "5.2";
 
 pub mod encoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Debug, Default)]
     pub struct CancelReplaceOrderResponseEncoder<'a> {
@@ -65,14 +67,14 @@ pub mod encoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn cancel_result(&mut self, value: CancelReplaceStatus) {
+        pub fn cancel_result(&mut self, value: cancel_replace_status::CancelReplaceStatus) {
             let offset = self.offset;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn new_order_result(&mut self, value: CancelReplaceStatus) {
+        pub fn new_order_result(&mut self, value: cancel_replace_status::CancelReplaceStatus) {
             let offset = self.offset + 1;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
@@ -101,6 +103,7 @@ pub mod encoder {
 
 pub mod decoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Clone, Copy, Debug, Default)]
     pub struct CancelReplaceOrderResponseDecoder<'a> {
@@ -110,6 +113,13 @@ pub mod decoder {
         limit: usize,
         pub acting_block_length: u16,
         pub acting_version: u16,
+    }
+
+    impl ActingVersion for CancelReplaceOrderResponseDecoder<'_> {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.acting_version
+        }
     }
 
     impl<'a> Reader<'a> for CancelReplaceOrderResponseDecoder<'a> {
@@ -154,14 +164,14 @@ pub mod decoder {
             self.limit - self.offset
         }
 
-        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>) -> Self {
+        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>, offset: usize) -> Self {
             debug_assert_eq!(SBE_TEMPLATE_ID, header.template_id());
             let acting_block_length = header.block_length();
             let acting_version = header.version();
 
             self.wrap(
                 header.parent().unwrap(),
-                message_header_codec::ENCODED_LENGTH,
+                offset + message_header_codec::ENCODED_LENGTH,
                 acting_block_length,
                 acting_version,
             )
@@ -169,13 +179,13 @@ pub mod decoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn cancel_result(&self) -> CancelReplaceStatus {
+        pub fn cancel_result(&self) -> cancel_replace_status::CancelReplaceStatus {
             self.get_buf().get_u8_at(self.offset).into()
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn new_order_result(&self) -> CancelReplaceStatus {
+        pub fn new_order_result(&self) -> cancel_replace_status::CancelReplaceStatus {
             self.get_buf().get_u8_at(self.offset + 1).into()
         }
 

@@ -7,21 +7,38 @@ use crate::{
 };
 use anyhow::bail;
 use spot_sbe::{
-    error_response_codec, exchange_info_response_codec, exchange_max_num_algo_orders_filter_codec,
-    exchange_max_num_iceberg_orders_filter_codec, exchange_max_num_orders_filter_codec,
-    iceberg_parts_filter_codec, lot_size_filter_codec, market_lot_size_filter_codec,
-    max_num_algo_orders_filter_codec, max_num_iceberg_orders_filter_codec,
-    max_num_orders_filter_codec, max_position_filter_codec, min_notional_filter_codec,
-    notional_filter_codec, percent_price_by_side_filter_codec, percent_price_filter_codec,
-    price_filter_codec, tp_lus_sell_filter_codec, trailing_delta_filter_codec,
-    web_socket_response_codec, BoolEnum, ErrorResponseDecoder, ExchangeInfoResponseDecoder,
-    ExchangeMaxNumAlgoOrdersFilterDecoder, ExchangeMaxNumIcebergOrdersFilterDecoder,
-    ExchangeMaxNumOrdersFilterDecoder, IcebergPartsFilterDecoder, LotSizeFilterDecoder,
-    MarketLotSizeFilterDecoder, MaxNumAlgoOrdersFilterDecoder, MaxNumIcebergOrdersFilterDecoder,
-    MaxNumOrdersFilterDecoder, MaxPositionFilterDecoder, MessageHeaderDecoder,
-    MinNotionalFilterDecoder, NotionalFilterDecoder, PercentPriceBySideFilterDecoder,
-    PercentPriceFilterDecoder, PriceFilterDecoder, ReadBuf, TPlusSellFilterDecoder,
-    TrailingDeltaFilterDecoder, WebSocketResponseDecoder,
+    bool_enum::BoolEnum, error_response_codec, error_response_codec::ErrorResponseDecoder,
+    exchange_info_response_codec, exchange_info_response_codec::ExchangeInfoResponseDecoder,
+    exchange_max_num_algo_orders_filter_codec,
+    exchange_max_num_algo_orders_filter_codec::ExchangeMaxNumAlgoOrdersFilterDecoder,
+    exchange_max_num_iceberg_orders_filter_codec,
+    exchange_max_num_iceberg_orders_filter_codec::ExchangeMaxNumIcebergOrdersFilterDecoder,
+    exchange_max_num_order_lists_filter_codec,
+    exchange_max_num_order_lists_filter_codec::ExchangeMaxNumOrderListsFilterDecoder,
+    exchange_max_num_orders_filter_codec,
+    exchange_max_num_orders_filter_codec::ExchangeMaxNumOrdersFilterDecoder,
+    iceberg_parts_filter_codec, iceberg_parts_filter_codec::IcebergPartsFilterDecoder,
+    lot_size_filter_codec, lot_size_filter_codec::LotSizeFilterDecoder,
+    market_lot_size_filter_codec, market_lot_size_filter_codec::MarketLotSizeFilterDecoder,
+    max_num_algo_orders_filter_codec,
+    max_num_algo_orders_filter_codec::MaxNumAlgoOrdersFilterDecoder,
+    max_num_iceberg_orders_filter_codec,
+    max_num_iceberg_orders_filter_codec::MaxNumIcebergOrdersFilterDecoder,
+    max_num_order_amends_filter_codec,
+    max_num_order_amends_filter_codec::MaxNumOrderAmendsFilterDecoder,
+    max_num_order_lists_filter_codec,
+    max_num_order_lists_filter_codec::MaxNumOrderListsFilterDecoder, max_num_orders_filter_codec,
+    max_num_orders_filter_codec::MaxNumOrdersFilterDecoder, max_position_filter_codec,
+    max_position_filter_codec::MaxPositionFilterDecoder,
+    message_header_codec::MessageHeaderDecoder, min_notional_filter_codec,
+    min_notional_filter_codec::MinNotionalFilterDecoder, notional_filter_codec,
+    notional_filter_codec::NotionalFilterDecoder, percent_price_by_side_filter_codec,
+    percent_price_by_side_filter_codec::PercentPriceBySideFilterDecoder,
+    percent_price_filter_codec, percent_price_filter_codec::PercentPriceFilterDecoder,
+    price_filter_codec, price_filter_codec::PriceFilterDecoder, tp_lus_sell_filter_codec,
+    tp_lus_sell_filter_codec::TPlusSellFilterDecoder, trailing_delta_filter_codec,
+    trailing_delta_filter_codec::TrailingDeltaFilterDecoder, web_socket_response_codec,
+    web_socket_response_codec::WebSocketResponseDecoder, ReadBuf,
 };
 use std::io::{self, Read};
 
@@ -46,7 +63,7 @@ fn into_bool(value: BoolEnum) -> anyhow::Result<bool> {
 }
 
 fn decode_error(header: MessageHeaderDecoder<ReadBuf<'_>>) -> anyhow::Result<ErrorResponse> {
-    let mut decoder = ErrorResponseDecoder::default().header(header);
+    let mut decoder = ErrorResponseDecoder::default().header(header, 0);
     let response = ErrorResponse {
         code: decoder.code(),
         server_time: decoder.server_time(),
@@ -65,22 +82,28 @@ fn decode_exchange_filter(
 ) -> anyhow::Result<ExchangeFilter> {
     Ok(match header.template_id() {
         exchange_max_num_orders_filter_codec::SBE_TEMPLATE_ID => {
-            let decoder = ExchangeMaxNumOrdersFilterDecoder::default().header(header);
+            let decoder = ExchangeMaxNumOrdersFilterDecoder::default().header(header, 0);
             ExchangeFilter::MaxNumOrders {
                 max_num_orders: decoder.max_num_orders(),
             }
         }
         exchange_max_num_algo_orders_filter_codec::SBE_TEMPLATE_ID => {
-            let decoder = ExchangeMaxNumAlgoOrdersFilterDecoder::default().header(header);
+            let decoder = ExchangeMaxNumAlgoOrdersFilterDecoder::default().header(header, 0);
             ExchangeFilter::MaxNumAlgoOrders {
                 max_num_algo_orders: decoder.max_num_algo_orders(),
             }
         }
 
         exchange_max_num_iceberg_orders_filter_codec::SBE_TEMPLATE_ID => {
-            let decoder = ExchangeMaxNumIcebergOrdersFilterDecoder::default().header(header);
+            let decoder = ExchangeMaxNumIcebergOrdersFilterDecoder::default().header(header, 0);
             ExchangeFilter::MaxNumIcebergOrders {
                 max_num_iceberg_orders: decoder.max_num_iceberg_orders(),
+            }
+        }
+        exchange_max_num_order_lists_filter_codec::SBE_TEMPLATE_ID => {
+            let decoder = ExchangeMaxNumOrderListsFilterDecoder::default().header(header, 0);
+            ExchangeFilter::MaxNumOrderLists {
+                max_num_order_lists: decoder.max_num_order_lists(),
             }
         }
         template_id => {
@@ -92,7 +115,7 @@ fn decode_exchange_filter(
 fn decode_symbol_filter(header: MessageHeaderDecoder<ReadBuf<'_>>) -> anyhow::Result<SymbolFilter> {
     Ok(match header.template_id() {
         price_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = PriceFilterDecoder::default().header(header);
+            let filter = PriceFilterDecoder::default().header(header, 0);
             let exponent = filter.price_exponent();
             SymbolFilter::Price {
                 min_price: Decimal::new(filter.min_price(), exponent),
@@ -101,7 +124,7 @@ fn decode_symbol_filter(header: MessageHeaderDecoder<ReadBuf<'_>>) -> anyhow::Re
             }
         }
         percent_price_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = PercentPriceFilterDecoder::default().header(header);
+            let filter = PercentPriceFilterDecoder::default().header(header, 0);
             let exponent = filter.multiplier_exponent();
             SymbolFilter::PercentPrice {
                 multiplier_up: Decimal::new(filter.multiplier_up(), exponent),
@@ -110,7 +133,7 @@ fn decode_symbol_filter(header: MessageHeaderDecoder<ReadBuf<'_>>) -> anyhow::Re
             }
         }
         percent_price_by_side_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = PercentPriceBySideFilterDecoder::default().header(header);
+            let filter = PercentPriceBySideFilterDecoder::default().header(header, 0);
             let exponent = filter.multiplier_exponent();
             SymbolFilter::PercentPriceBySide {
                 bid_multiplier_up: Decimal::new(filter.bid_multiplier_up(), exponent),
@@ -121,7 +144,7 @@ fn decode_symbol_filter(header: MessageHeaderDecoder<ReadBuf<'_>>) -> anyhow::Re
             }
         }
         lot_size_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = LotSizeFilterDecoder::default().header(header);
+            let filter = LotSizeFilterDecoder::default().header(header, 0);
             let exponent = filter.qty_exponent();
             SymbolFilter::LotSize {
                 min_qty: Decimal::new(filter.min_qty(), exponent),
@@ -130,7 +153,7 @@ fn decode_symbol_filter(header: MessageHeaderDecoder<ReadBuf<'_>>) -> anyhow::Re
             }
         }
         min_notional_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = MinNotionalFilterDecoder::default().header(header);
+            let filter = MinNotionalFilterDecoder::default().header(header, 0);
             let exponent = filter.price_exponent();
             SymbolFilter::MinNotional {
                 min_notional: Decimal::new(filter.min_notional(), exponent),
@@ -139,7 +162,7 @@ fn decode_symbol_filter(header: MessageHeaderDecoder<ReadBuf<'_>>) -> anyhow::Re
             }
         }
         notional_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = NotionalFilterDecoder::default().header(header);
+            let filter = NotionalFilterDecoder::default().header(header, 0);
             let exponent = filter.price_exponent();
             SymbolFilter::Notional {
                 min_notional: Decimal::new(filter.min_notional(), exponent),
@@ -150,13 +173,13 @@ fn decode_symbol_filter(header: MessageHeaderDecoder<ReadBuf<'_>>) -> anyhow::Re
             }
         }
         iceberg_parts_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = IcebergPartsFilterDecoder::default().header(header);
+            let filter = IcebergPartsFilterDecoder::default().header(header, 0);
             SymbolFilter::IcebergParts {
                 filter_limit: filter.filter_limit(),
             }
         }
         market_lot_size_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = MarketLotSizeFilterDecoder::default().header(header);
+            let filter = MarketLotSizeFilterDecoder::default().header(header, 0);
             let exponent = filter.qty_exponent();
             SymbolFilter::MarketLotSize {
                 min_qty: Decimal::new(filter.min_qty(), exponent),
@@ -165,32 +188,44 @@ fn decode_symbol_filter(header: MessageHeaderDecoder<ReadBuf<'_>>) -> anyhow::Re
             }
         }
         max_num_orders_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = MaxNumOrdersFilterDecoder::default().header(header);
+            let filter = MaxNumOrdersFilterDecoder::default().header(header, 0);
             SymbolFilter::MaxNumOrders {
                 max_num_orders: filter.max_num_orders(),
             }
         }
         max_num_algo_orders_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = MaxNumAlgoOrdersFilterDecoder::default().header(header);
+            let filter = MaxNumAlgoOrdersFilterDecoder::default().header(header, 0);
             SymbolFilter::MaxNumAlgoOrders {
                 max_num_algo_orders: filter.max_num_algo_orders(),
             }
         }
         max_num_iceberg_orders_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = MaxNumIcebergOrdersFilterDecoder::default().header(header);
+            let filter = MaxNumIcebergOrdersFilterDecoder::default().header(header, 0);
             SymbolFilter::MaxNumIcebergOrders {
                 max_num_iceberg_orders: filter.max_num_iceberg_orders(),
             }
         }
+        max_num_order_amends_filter_codec::SBE_TEMPLATE_ID => {
+            let filter = MaxNumOrderAmendsFilterDecoder::default().header(header, 0);
+            SymbolFilter::MaxNumOrderAmends {
+                max_num_order_amends: filter.max_num_order_amends(),
+            }
+        }
+        max_num_order_lists_filter_codec::SBE_TEMPLATE_ID => {
+            let filter = MaxNumOrderListsFilterDecoder::default().header(header, 0);
+            SymbolFilter::MaxNumOrderLists {
+                max_num_order_lists: filter.max_num_order_lists(),
+            }
+        }
         max_position_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = MaxPositionFilterDecoder::default().header(header);
+            let filter = MaxPositionFilterDecoder::default().header(header, 0);
             let exponent = filter.qty_exponent();
             SymbolFilter::MaxPosition {
                 max_position: Decimal::new(filter.max_position(), exponent),
             }
         }
         trailing_delta_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = TrailingDeltaFilterDecoder::default().header(header);
+            let filter = TrailingDeltaFilterDecoder::default().header(header, 0);
             SymbolFilter::TrailingDelta {
                 min_trailing_above_delta: filter.min_trailing_above_delta(),
                 max_trailing_above_delta: filter.max_trailing_above_delta(),
@@ -199,7 +234,7 @@ fn decode_symbol_filter(header: MessageHeaderDecoder<ReadBuf<'_>>) -> anyhow::Re
             }
         }
         tp_lus_sell_filter_codec::SBE_TEMPLATE_ID => {
-            let filter = TPlusSellFilterDecoder::default().header(header);
+            let filter = TPlusSellFilterDecoder::default().header(header, 0);
             SymbolFilter::TPlusSell {
                 end_time: filter.end_time(),
             }
@@ -213,7 +248,7 @@ fn decode_symbol_filter(header: MessageHeaderDecoder<ReadBuf<'_>>) -> anyhow::Re
 fn decode_websocket_metadata(
     header: MessageHeaderDecoder<ReadBuf<'_>>,
 ) -> anyhow::Result<(WebSocketMetadata, usize)> {
-    let decoder = WebSocketResponseDecoder::default().header(header);
+    let decoder = WebSocketResponseDecoder::default().header(header, 0);
     if into_bool(decoder.sbe_schema_id_version_deprecated())? {
         println!("Warning: sbe-sample-app is using a deprecated schema");
     }
@@ -285,7 +320,7 @@ fn main() -> anyhow::Result<()> {
     if decoder.template_id() != exchange_info_response_codec::SBE_TEMPLATE_ID {
         bail!("Unexpected template ID {}", decoder.template_id());
     }
-    let decoder = ExchangeInfoResponseDecoder::default().header(decoder);
+    let decoder = ExchangeInfoResponseDecoder::default().header(decoder, 0);
     let mut decoder = decoder.rate_limits_decoder();
     let count = decoder.count();
     let mut rate_limits = Vec::with_capacity(count.try_into()?);
@@ -329,13 +364,16 @@ fn main() -> anyhow::Result<()> {
             order_types: decoder.order_types(),
             iceberg_allowed: into_bool(decoder.iceberg_allowed())?,
             oco_allowed: into_bool(decoder.oco_allowed())?,
+            oto_allowed: into_bool(decoder.oto_allowed())?,
             quote_order_qty_market_allowed: into_bool(decoder.quote_order_qty_market_allowed())?,
             allow_trailing_stop: into_bool(decoder.allow_trailing_stop())?,
             cancel_replace_allowed: into_bool(decoder.cancel_replace_allowed())?,
+            amend_allowed: into_bool(decoder.amend_allowed())?,
             is_spot_trading_allowed: into_bool(decoder.is_spot_trading_allowed())?,
             is_margin_trading_allowed: into_bool(decoder.is_margin_trading_allowed())?,
             default_self_trade_prevention_mode: decoder.default_self_trade_prevention_mode(),
             allowed_self_trade_prevention_modes: decoder.allowed_self_trade_prevention_modes(),
+            peg_instructions_allowed: Some(into_bool(decoder.peg_instructions_allowed())?),
             filters: {
                 let mut filters_decoder = decoder.filters_decoder();
                 let count = filters_decoder.count().try_into()?;
@@ -351,18 +389,34 @@ fn main() -> anyhow::Result<()> {
                 decoder = filters_decoder.parent()?;
                 filters
             },
-            permissions: {
-                let mut permissions_decoder = decoder.permissions_decoder();
-                let count = permissions_decoder.count().try_into()?;
-                let mut permissions = Vec::with_capacity(count);
+            permission_sets: {
+                let mut permissions_sets_decoder = decoder.permission_sets_decoder();
+                let count = permissions_sets_decoder.count().try_into()?;
+                let mut all_permissions = Vec::with_capacity(count);
+
                 for _ in 0..count {
-                    permissions_decoder.advance()?;
-                    let coordinates = permissions_decoder.permission_decoder();
-                    let slice = permissions_decoder.permission_slice(coordinates);
-                    permissions.push(String::from_utf8(slice.into())?);
+                    permissions_sets_decoder.advance()?;
+
+                    let mut permissions_decoder = permissions_sets_decoder.permissions_decoder();
+                    let count = permissions_decoder.count().try_into()?;
+                    let mut permission_sets = Vec::with_capacity(count);
+
+                    for _ in 0..count {
+                        permissions_decoder.advance()?;
+                        let coordinates = permissions_decoder.permission_decoder();
+                        let slice = permissions_decoder.permission_slice(coordinates);
+                        permission_sets.push(String::from_utf8(slice.into())?);
+                    }
+
+                    // IMPORTANT: give back the parent so we can use it again
+                    permissions_sets_decoder = permissions_decoder.parent()?;
+
+                    all_permissions.push(permission_sets);
                 }
-                decoder = permissions_decoder.parent()?;
-                permissions
+
+                // now we can go back up another level
+                decoder = permissions_sets_decoder.parent()?;
+                all_permissions
             },
             symbol: {
                 let coordinates = decoder.symbol_decoder();

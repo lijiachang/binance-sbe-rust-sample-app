@@ -3,14 +3,16 @@ use crate::*;
 pub use decoder::CancelOpenOrdersResponseDecoder;
 pub use encoder::CancelOpenOrdersResponseEncoder;
 
+pub use crate::SBE_SCHEMA_ID;
+pub use crate::SBE_SCHEMA_VERSION;
+pub use crate::SBE_SEMANTIC_VERSION;
+
 pub const SBE_BLOCK_LENGTH: u16 = 0;
 pub const SBE_TEMPLATE_ID: u16 = 306;
-pub const SBE_SCHEMA_ID: u16 = 1;
-pub const SBE_SCHEMA_VERSION: u16 = 0;
-pub const SBE_SEMANTIC_VERSION: &str = "5.2";
 
 pub mod encoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Debug, Default)]
     pub struct CancelOpenOrdersResponseEncoder<'a> {
@@ -176,6 +178,7 @@ pub mod encoder {
 
 pub mod decoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Clone, Copy, Debug, Default)]
     pub struct CancelOpenOrdersResponseDecoder<'a> {
@@ -185,6 +188,13 @@ pub mod decoder {
         limit: usize,
         pub acting_block_length: u16,
         pub acting_version: u16,
+    }
+
+    impl ActingVersion for CancelOpenOrdersResponseDecoder<'_> {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.acting_version
+        }
     }
 
     impl<'a> Reader<'a> for CancelOpenOrdersResponseDecoder<'a> {
@@ -229,14 +239,14 @@ pub mod decoder {
             self.limit - self.offset
         }
 
-        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>) -> Self {
+        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>, offset: usize) -> Self {
             debug_assert_eq!(SBE_TEMPLATE_ID, header.template_id());
             let acting_block_length = header.block_length();
             let acting_version = header.version();
 
             self.wrap(
                 header.parent().unwrap(),
-                message_header_codec::ENCODED_LENGTH,
+                offset + message_header_codec::ENCODED_LENGTH,
                 acting_block_length,
                 acting_version,
             )
@@ -252,10 +262,20 @@ pub mod decoder {
     #[derive(Debug, Default)]
     pub struct ResponsesDecoder<P> {
         parent: Option<P>,
-        block_length: usize,
+        block_length: u16,
         count: u32,
         index: usize,
         offset: usize,
+    }
+
+    impl<'a, P> ActingVersion for ResponsesDecoder<P>
+    where
+        P: Reader<'a> + ActingVersion + Default,
+    {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
     }
 
     impl<'a, P> Reader<'a> for ResponsesDecoder<P>
@@ -270,7 +290,7 @@ pub mod decoder {
 
     impl<'a, P> Decoder<'a> for ResponsesDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         #[inline]
         fn get_limit(&self) -> usize {
@@ -288,11 +308,11 @@ pub mod decoder {
 
     impl<'a, P> ResponsesDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         pub fn wrap(mut self, mut parent: P) -> Self {
             let initial_offset = parent.get_limit();
-            let block_length = parent.get_buf().get_u16_at(initial_offset) as usize;
+            let block_length = parent.get_buf().get_u16_at(initial_offset);
             let count = parent.get_buf().get_u32_at(initial_offset + 2);
             parent.set_limit(initial_offset + 6);
             self.parent = Some(parent);
@@ -310,6 +330,11 @@ pub mod decoder {
         }
 
         #[inline]
+        pub fn acting_version(&mut self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
+
+        #[inline]
         pub fn count(&self) -> u32 {
             self.count
         }
@@ -322,7 +347,7 @@ pub mod decoder {
             }
             if let Some(parent) = self.parent.as_mut() {
                 self.offset = parent.get_limit();
-                parent.set_limit(self.offset + self.block_length);
+                parent.set_limit(self.offset + self.block_length as usize);
                 self.index = index;
                 Ok(Some(index))
             } else {

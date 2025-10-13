@@ -1,7 +1,8 @@
 use crate::rate_limit::RateLimit;
 use serde::{ser::SerializeSeq, Serialize, Serializer};
 use spot_sbe::{
-    AllowedSelfTradePreventionModes, OrderTypes, SelfTradePreventionMode, SymbolStatus,
+    allowed_self_trade_prevention_modes::AllowedSelfTradePreventionModes, order_types::OrderTypes,
+    self_trade_prevention_mode::SelfTradePreventionMode, symbol_status::SymbolStatus,
 };
 
 #[derive(Serialize)]
@@ -37,6 +38,7 @@ pub enum ExchangeFilter {
     MaxNumOrders { max_num_orders: i64 },
     MaxNumAlgoOrders { max_num_algo_orders: i64 },
     MaxNumIcebergOrders { max_num_iceberg_orders: i64 },
+    MaxNumOrderLists { max_num_order_lists: i64 },
 }
 
 #[derive(Serialize)]
@@ -97,6 +99,12 @@ pub enum SymbolFilter {
     MaxNumIcebergOrders {
         max_num_iceberg_orders: i64,
     },
+    MaxNumOrderLists {
+        max_num_order_lists: i64,
+    },
+    MaxNumOrderAmends {
+        max_num_order_amends: i64,
+    },
     MaxPosition {
         max_position: Decimal,
     },
@@ -131,9 +139,12 @@ pub struct SymbolInfo {
     pub order_types: OrderTypes,
     pub iceberg_allowed: bool,
     pub oco_allowed: bool,
+    pub oto_allowed: bool,
     pub quote_order_qty_market_allowed: bool,
     pub allow_trailing_stop: bool,
     pub cancel_replace_allowed: bool,
+    pub amend_allowed: bool,
+    pub peg_instructions_allowed: Option<bool>,
     pub is_spot_trading_allowed: bool,
     pub is_margin_trading_allowed: bool,
     #[serde(serialize_with = "serialize_self_trade_prevention_mode")]
@@ -141,7 +152,7 @@ pub struct SymbolInfo {
     #[serde(serialize_with = "serialize_allowed_self_trade_prevention_modes")]
     pub allowed_self_trade_prevention_modes: AllowedSelfTradePreventionModes,
     pub filters: Vec<SymbolFilter>,
-    pub permissions: Vec<String>,
+    pub permission_sets: Vec<Vec<String>>,
     pub symbol: String,
     pub base_asset: String,
     pub quote_asset: String,
@@ -162,13 +173,11 @@ fn serialize_symbol_status<S: Serializer>(
 ) -> Result<S::Ok, S::Error> {
     use SymbolStatus::*;
     let str_val = match val {
-        PreTrading => "PRE_TRADING",
         Trading => "TRADING",
-        PostTrading => "POST_TRADING",
         EndOfDay => "END_OF_DAY",
         Halt => "HALT",
-        AuctionMatch => "AUCTION_MATCH",
         Break => "BREAK",
+        NonRepresentable => "NON_REPRESENTABLE",
         NullVal => return serializer.serialize_none(),
     };
     serializer.serialize_str(str_val)
@@ -217,6 +226,8 @@ fn serialize_self_trade_prevention_mode<S: Serializer>(
         ExpireTaker => "EXPIRE_TAKER",
         ExpireMaker => "EXPIRE_MAKER",
         ExpireBoth => "EXPIRE_BOTH",
+        Decrement => "DECREMENT",
+        NonRepresentable => "NON_REPRESENTABLE",
         NullVal => return serializer.serialize_none(),
     };
     serializer.serialize_str(str_val)
@@ -238,6 +249,12 @@ fn serialize_allowed_self_trade_prevention_modes<S: Serializer>(
     }
     if val.get_expire_both() {
         strings.push("EXPIRE_BOTH");
+    }
+    if val.get_decrement() {
+        strings.push("DECREMENT");
+    }
+    if val.get_non_representable() {
+        strings.push("NON_REPRESENTABLE");
     }
     let mut seq = serializer.serialize_seq(Some(strings.len()))?;
     for s in strings {

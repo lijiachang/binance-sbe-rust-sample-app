@@ -1,5 +1,5 @@
 use serde::{Serialize, Serializer};
-use spot_sbe::{RateLimitInterval, RateLimitType};
+use spot_sbe::{rate_limit_interval::RateLimitInterval, rate_limit_type::RateLimitType};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -23,6 +23,7 @@ fn serialize_rate_limit_type<S: Serializer>(
         RawRequests => "RAW_REQUESTS",
         Connections => "CONNECTIONS",
         RequestWeight => "REQUEST_WEIGHT",
+        NonRepresentable => "NON_REPRESENTABLE",
         NullVal => return serializer.serialize_none(),
     };
     serializer.serialize_str(str_val)
@@ -38,6 +39,7 @@ fn serialize_rate_limit_interval<S: Serializer>(
         Minute => "MINUTE",
         Hour => "HOUR",
         Day => "DAY",
+        NonRepresentable => "NON_REPRESENTABLE",
         NullVal => return serializer.serialize_none(),
     };
     serializer.serialize_str(str_val)

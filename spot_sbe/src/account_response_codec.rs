@@ -3,14 +3,16 @@ use crate::*;
 pub use decoder::AccountResponseDecoder;
 pub use encoder::AccountResponseEncoder;
 
+pub use crate::SBE_SCHEMA_ID;
+pub use crate::SBE_SCHEMA_VERSION;
+pub use crate::SBE_SEMANTIC_VERSION;
+
 pub const SBE_BLOCK_LENGTH: u16 = 64;
 pub const SBE_TEMPLATE_ID: u16 = 400;
-pub const SBE_SCHEMA_ID: u16 = 1;
-pub const SBE_SCHEMA_VERSION: u16 = 0;
-pub const SBE_SEMANTIC_VERSION: &str = "5.2";
 
 pub mod encoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Debug, Default)]
     pub struct AccountResponseEncoder<'a> {
@@ -66,11 +68,12 @@ pub mod encoder {
         /// primitive field 'commissionExponent'
         /// - min value: -127
         /// - max value: 127
-        /// - null value: -128
+        /// - null value: -128_i8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 0
         /// - encodedLength: 1
+        /// - version: 0
         #[inline]
         pub fn commission_exponent(&mut self, value: i8) {
             let offset = self.offset;
@@ -80,11 +83,12 @@ pub mod encoder {
         /// primitive field 'commissionRateMaker'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 1
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn commission_rate_maker(&mut self, value: i64) {
             let offset = self.offset + 1;
@@ -94,11 +98,12 @@ pub mod encoder {
         /// primitive field 'commissionRateTaker'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 9
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn commission_rate_taker(&mut self, value: i64) {
             let offset = self.offset + 9;
@@ -108,11 +113,12 @@ pub mod encoder {
         /// primitive field 'commissionRateBuyer'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 17
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn commission_rate_buyer(&mut self, value: i64) {
             let offset = self.offset + 17;
@@ -122,11 +128,12 @@ pub mod encoder {
         /// primitive field 'commissionRateSeller'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 25
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn commission_rate_seller(&mut self, value: i64) {
             let offset = self.offset + 25;
@@ -135,42 +142,42 @@ pub mod encoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn can_trade(&mut self, value: BoolEnum) {
+        pub fn can_trade(&mut self, value: bool_enum::BoolEnum) {
             let offset = self.offset + 33;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn can_withdraw(&mut self, value: BoolEnum) {
+        pub fn can_withdraw(&mut self, value: bool_enum::BoolEnum) {
             let offset = self.offset + 34;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn can_deposit(&mut self, value: BoolEnum) {
+        pub fn can_deposit(&mut self, value: bool_enum::BoolEnum) {
             let offset = self.offset + 35;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn brokered(&mut self, value: BoolEnum) {
+        pub fn brokered(&mut self, value: bool_enum::BoolEnum) {
             let offset = self.offset + 36;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn require_self_trade_prevention(&mut self, value: BoolEnum) {
+        pub fn require_self_trade_prevention(&mut self, value: bool_enum::BoolEnum) {
             let offset = self.offset + 37;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn prevent_sor(&mut self, value: BoolEnum) {
+        pub fn prevent_sor(&mut self, value: bool_enum::BoolEnum) {
             let offset = self.offset + 38;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
@@ -178,11 +185,12 @@ pub mod encoder {
         /// primitive field 'updateTime'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 39
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn update_time(&mut self, value: i64) {
             let offset = self.offset + 39;
@@ -191,7 +199,7 @@ pub mod encoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn account_type(&mut self, value: AccountType) {
+        pub fn account_type(&mut self, value: account_type::AccountType) {
             let offset = self.offset + 47;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
@@ -199,11 +207,12 @@ pub mod encoder {
         /// primitive field 'tradeGroupId'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 48
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn trade_group_id(&mut self, value: i64) {
             let offset = self.offset + 48;
@@ -213,11 +222,12 @@ pub mod encoder {
         /// primitive field 'uid'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 56
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn uid(&mut self, value: i64) {
             let offset = self.offset + 56;
@@ -346,11 +356,12 @@ pub mod encoder {
         /// primitive field 'exponent'
         /// - min value: -127
         /// - max value: 127
-        /// - null value: -128
+        /// - null value: -128_i8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 0
         /// - encodedLength: 1
+        /// - version: 0
         #[inline]
         pub fn exponent(&mut self, value: i8) {
             let offset = self.offset;
@@ -360,11 +371,12 @@ pub mod encoder {
         /// primitive field 'free'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 1
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn free(&mut self, value: i64) {
             let offset = self.offset + 1;
@@ -374,11 +386,12 @@ pub mod encoder {
         /// primitive field 'locked'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 9
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn locked(&mut self, value: i64) {
             let offset = self.offset + 9;
@@ -597,6 +610,7 @@ pub mod encoder {
 
 pub mod decoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Clone, Copy, Debug, Default)]
     pub struct AccountResponseDecoder<'a> {
@@ -606,6 +620,13 @@ pub mod decoder {
         limit: usize,
         pub acting_block_length: u16,
         pub acting_version: u16,
+    }
+
+    impl ActingVersion for AccountResponseDecoder<'_> {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.acting_version
+        }
     }
 
     impl<'a> Reader<'a> for AccountResponseDecoder<'a> {
@@ -650,14 +671,14 @@ pub mod decoder {
             self.limit - self.offset
         }
 
-        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>) -> Self {
+        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>, offset: usize) -> Self {
             debug_assert_eq!(SBE_TEMPLATE_ID, header.template_id());
             let acting_block_length = header.block_length();
             let acting_version = header.version();
 
             self.wrap(
                 header.parent().unwrap(),
-                message_header_codec::ENCODED_LENGTH,
+                offset + message_header_codec::ENCODED_LENGTH,
                 acting_block_length,
                 acting_version,
             )
@@ -695,37 +716,37 @@ pub mod decoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn can_trade(&self) -> BoolEnum {
+        pub fn can_trade(&self) -> bool_enum::BoolEnum {
             self.get_buf().get_u8_at(self.offset + 33).into()
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn can_withdraw(&self) -> BoolEnum {
+        pub fn can_withdraw(&self) -> bool_enum::BoolEnum {
             self.get_buf().get_u8_at(self.offset + 34).into()
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn can_deposit(&self) -> BoolEnum {
+        pub fn can_deposit(&self) -> bool_enum::BoolEnum {
             self.get_buf().get_u8_at(self.offset + 35).into()
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn brokered(&self) -> BoolEnum {
+        pub fn brokered(&self) -> bool_enum::BoolEnum {
             self.get_buf().get_u8_at(self.offset + 36).into()
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn require_self_trade_prevention(&self) -> BoolEnum {
+        pub fn require_self_trade_prevention(&self) -> bool_enum::BoolEnum {
             self.get_buf().get_u8_at(self.offset + 37).into()
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn prevent_sor(&self) -> BoolEnum {
+        pub fn prevent_sor(&self) -> bool_enum::BoolEnum {
             self.get_buf().get_u8_at(self.offset + 38).into()
         }
 
@@ -737,11 +758,11 @@ pub mod decoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn account_type(&self) -> AccountType {
+        pub fn account_type(&self) -> account_type::AccountType {
             self.get_buf().get_u8_at(self.offset + 47).into()
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn trade_group_id(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 48);
@@ -780,10 +801,20 @@ pub mod decoder {
     #[derive(Debug, Default)]
     pub struct BalancesDecoder<P> {
         parent: Option<P>,
-        block_length: usize,
+        block_length: u16,
         count: u32,
         index: usize,
         offset: usize,
+    }
+
+    impl<'a, P> ActingVersion for BalancesDecoder<P>
+    where
+        P: Reader<'a> + ActingVersion + Default,
+    {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
     }
 
     impl<'a, P> Reader<'a> for BalancesDecoder<P>
@@ -798,7 +829,7 @@ pub mod decoder {
 
     impl<'a, P> Decoder<'a> for BalancesDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         #[inline]
         fn get_limit(&self) -> usize {
@@ -816,11 +847,11 @@ pub mod decoder {
 
     impl<'a, P> BalancesDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         pub fn wrap(mut self, mut parent: P) -> Self {
             let initial_offset = parent.get_limit();
-            let block_length = parent.get_buf().get_u16_at(initial_offset) as usize;
+            let block_length = parent.get_buf().get_u16_at(initial_offset);
             let count = parent.get_buf().get_u32_at(initial_offset + 2);
             parent.set_limit(initial_offset + 6);
             self.parent = Some(parent);
@@ -838,6 +869,11 @@ pub mod decoder {
         }
 
         #[inline]
+        pub fn acting_version(&mut self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
+
+        #[inline]
         pub fn count(&self) -> u32 {
             self.count
         }
@@ -850,7 +886,7 @@ pub mod decoder {
             }
             if let Some(parent) = self.parent.as_mut() {
                 self.offset = parent.get_limit();
-                parent.set_limit(self.offset + self.block_length);
+                parent.set_limit(self.offset + self.block_length as usize);
                 self.index = index;
                 Ok(Some(index))
             } else {
@@ -898,10 +934,20 @@ pub mod decoder {
     #[derive(Debug, Default)]
     pub struct PermissionsDecoder<P> {
         parent: Option<P>,
-        block_length: usize,
+        block_length: u16,
         count: u32,
         index: usize,
         offset: usize,
+    }
+
+    impl<'a, P> ActingVersion for PermissionsDecoder<P>
+    where
+        P: Reader<'a> + ActingVersion + Default,
+    {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
     }
 
     impl<'a, P> Reader<'a> for PermissionsDecoder<P>
@@ -916,7 +962,7 @@ pub mod decoder {
 
     impl<'a, P> Decoder<'a> for PermissionsDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         #[inline]
         fn get_limit(&self) -> usize {
@@ -934,11 +980,11 @@ pub mod decoder {
 
     impl<'a, P> PermissionsDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         pub fn wrap(mut self, mut parent: P) -> Self {
             let initial_offset = parent.get_limit();
-            let block_length = parent.get_buf().get_u16_at(initial_offset) as usize;
+            let block_length = parent.get_buf().get_u16_at(initial_offset);
             let count = parent.get_buf().get_u32_at(initial_offset + 2);
             parent.set_limit(initial_offset + 6);
             self.parent = Some(parent);
@@ -956,6 +1002,11 @@ pub mod decoder {
         }
 
         #[inline]
+        pub fn acting_version(&mut self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
+
+        #[inline]
         pub fn count(&self) -> u32 {
             self.count
         }
@@ -968,7 +1019,7 @@ pub mod decoder {
             }
             if let Some(parent) = self.parent.as_mut() {
                 self.offset = parent.get_limit();
-                parent.set_limit(self.offset + self.block_length);
+                parent.set_limit(self.offset + self.block_length as usize);
                 self.index = index;
                 Ok(Some(index))
             } else {
@@ -998,10 +1049,20 @@ pub mod decoder {
     #[derive(Debug, Default)]
     pub struct ReduceOnlyAssetsDecoder<P> {
         parent: Option<P>,
-        block_length: usize,
+        block_length: u16,
         count: u32,
         index: usize,
         offset: usize,
+    }
+
+    impl<'a, P> ActingVersion for ReduceOnlyAssetsDecoder<P>
+    where
+        P: Reader<'a> + ActingVersion + Default,
+    {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
     }
 
     impl<'a, P> Reader<'a> for ReduceOnlyAssetsDecoder<P>
@@ -1016,7 +1077,7 @@ pub mod decoder {
 
     impl<'a, P> Decoder<'a> for ReduceOnlyAssetsDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         #[inline]
         fn get_limit(&self) -> usize {
@@ -1034,11 +1095,11 @@ pub mod decoder {
 
     impl<'a, P> ReduceOnlyAssetsDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         pub fn wrap(mut self, mut parent: P) -> Self {
             let initial_offset = parent.get_limit();
-            let block_length = parent.get_buf().get_u16_at(initial_offset) as usize;
+            let block_length = parent.get_buf().get_u16_at(initial_offset);
             let count = parent.get_buf().get_u32_at(initial_offset + 2);
             parent.set_limit(initial_offset + 6);
             self.parent = Some(parent);
@@ -1056,6 +1117,11 @@ pub mod decoder {
         }
 
         #[inline]
+        pub fn acting_version(&mut self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
+
+        #[inline]
         pub fn count(&self) -> u32 {
             self.count
         }
@@ -1068,7 +1134,7 @@ pub mod decoder {
             }
             if let Some(parent) = self.parent.as_mut() {
                 self.offset = parent.get_limit();
-                parent.set_limit(self.offset + self.block_length);
+                parent.set_limit(self.offset + self.block_length as usize);
                 self.index = index;
                 Ok(Some(index))
             } else {

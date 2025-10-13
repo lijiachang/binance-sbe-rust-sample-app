@@ -3,14 +3,16 @@ use crate::*;
 pub use decoder::Ticker24hFullResponseDecoder;
 pub use encoder::Ticker24hFullResponseEncoder;
 
+pub use crate::SBE_SCHEMA_ID;
+pub use crate::SBE_SCHEMA_VERSION;
+pub use crate::SBE_SEMANTIC_VERSION;
+
 pub const SBE_BLOCK_LENGTH: u16 = 0;
 pub const SBE_TEMPLATE_ID: u16 = 206;
-pub const SBE_SCHEMA_ID: u16 = 1;
-pub const SBE_SCHEMA_VERSION: u16 = 0;
-pub const SBE_SEMANTIC_VERSION: &str = "5.2";
 
 pub mod encoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Debug, Default)]
     pub struct Ticker24hFullResponseEncoder<'a> {
@@ -165,11 +167,12 @@ pub mod encoder {
         /// primitive field 'priceExponent'
         /// - min value: -127
         /// - max value: 127
-        /// - null value: -128
+        /// - null value: -128_i8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 0
         /// - encodedLength: 1
+        /// - version: 0
         #[inline]
         pub fn price_exponent(&mut self, value: i8) {
             let offset = self.offset;
@@ -179,11 +182,12 @@ pub mod encoder {
         /// primitive field 'qtyExponent'
         /// - min value: -127
         /// - max value: 127
-        /// - null value: -128
+        /// - null value: -128_i8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 1
         /// - encodedLength: 1
+        /// - version: 0
         #[inline]
         pub fn qty_exponent(&mut self, value: i8) {
             let offset = self.offset + 1;
@@ -193,11 +197,12 @@ pub mod encoder {
         /// primitive field 'priceChange'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 2
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn price_change(&mut self, value: i64) {
             let offset = self.offset + 2;
@@ -205,13 +210,14 @@ pub mod encoder {
         }
 
         /// primitive field 'priceChangePercent'
-        /// - min value: 1.401298464324817E-45
+        /// - min value: -3.4028234663852886E38
         /// - max value: 3.4028234663852886E38
-        /// - null value: NaN
+        /// - null value: f32::NAN
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 10
         /// - encodedLength: 4
+        /// - version: 0
         #[inline]
         pub fn price_change_percent(&mut self, value: f32) {
             let offset = self.offset + 10;
@@ -221,11 +227,12 @@ pub mod encoder {
         /// primitive field 'weightedAvgPrice'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 14
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn weighted_avg_price(&mut self, value: i64) {
             let offset = self.offset + 14;
@@ -235,11 +242,12 @@ pub mod encoder {
         /// primitive field 'prevClosePrice'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 22
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn prev_close_price(&mut self, value: i64) {
             let offset = self.offset + 22;
@@ -249,41 +257,88 @@ pub mod encoder {
         /// primitive field 'lastPrice'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 30
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn last_price(&mut self, value: i64) {
             let offset = self.offset + 30;
             self.get_buf_mut().put_i64_at(offset, value);
         }
 
+        #[inline]
+        pub fn last_qty_at(&mut self, index: usize, value: u8) {
+            let offset = self.offset + 38;
+            let buf = self.get_buf_mut();
+            buf.put_u8_at(offset + index, value);
+        }
+
         /// primitive array field 'lastQty'
         /// - min value: 0
         /// - max value: 254
-        /// - null value: 255
+        /// - null value: 0xff_u8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 38
         /// - encodedLength: 16
         /// - version: 0
         #[inline]
-        pub fn last_qty(&mut self, value: [u8; 16]) {
+        pub fn last_qty(&mut self, value: &[u8]) {
+            debug_assert_eq!(16, value.len());
             let offset = self.offset + 38;
             let buf = self.get_buf_mut();
-            buf.put_bytes_at(offset, value);
+            buf.put_slice_at(offset, value);
+        }
+
+        /// primitive array field 'lastQty' from an Iterator
+        /// - min value: 0
+        /// - max value: 254
+        /// - null value: 0xff_u8
+        /// - characterEncoding: null
+        /// - semanticType: null
+        /// - encodedOffset: 38
+        /// - encodedLength: 16
+        /// - version: 0
+        #[inline]
+        pub fn last_qty_from_iter(&mut self, iter: impl Iterator<Item = u8>) {
+            let offset = self.offset + 38;
+            let buf = self.get_buf_mut();
+            for (i, v) in iter.enumerate() {
+                buf.put_u8_at(offset + i, v);
+            }
+        }
+
+        /// primitive array field 'lastQty' with zero padding
+        /// - min value: 0
+        /// - max value: 254
+        /// - null value: 0xff_u8
+        /// - characterEncoding: null
+        /// - semanticType: null
+        /// - encodedOffset: 38
+        /// - encodedLength: 16
+        /// - version: 0
+        #[inline]
+        pub fn last_qty_zero_padded(&mut self, value: &[u8]) {
+            let iter = value
+                .iter()
+                .copied()
+                .chain(std::iter::repeat(0_u8))
+                .take(16);
+            self.last_qty_from_iter(iter);
         }
 
         /// primitive field 'bidPrice'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 54
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn bid_price(&mut self, value: i64) {
             let offset = self.offset + 54;
@@ -293,11 +348,12 @@ pub mod encoder {
         /// primitive field 'bidQty'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 62
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn bid_qty(&mut self, value: i64) {
             let offset = self.offset + 62;
@@ -307,11 +363,12 @@ pub mod encoder {
         /// primitive field 'askPrice'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 70
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn ask_price(&mut self, value: i64) {
             let offset = self.offset + 70;
@@ -321,11 +378,12 @@ pub mod encoder {
         /// primitive field 'askQty'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 78
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn ask_qty(&mut self, value: i64) {
             let offset = self.offset + 78;
@@ -335,11 +393,12 @@ pub mod encoder {
         /// primitive field 'openPrice'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 86
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn open_price(&mut self, value: i64) {
             let offset = self.offset + 86;
@@ -349,11 +408,12 @@ pub mod encoder {
         /// primitive field 'highPrice'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 94
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn high_price(&mut self, value: i64) {
             let offset = self.offset + 94;
@@ -363,57 +423,149 @@ pub mod encoder {
         /// primitive field 'lowPrice'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 102
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn low_price(&mut self, value: i64) {
             let offset = self.offset + 102;
             self.get_buf_mut().put_i64_at(offset, value);
         }
 
+        #[inline]
+        pub fn volume_at(&mut self, index: usize, value: u8) {
+            let offset = self.offset + 110;
+            let buf = self.get_buf_mut();
+            buf.put_u8_at(offset + index, value);
+        }
+
         /// primitive array field 'volume'
         /// - min value: 0
         /// - max value: 254
-        /// - null value: 255
+        /// - null value: 0xff_u8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 110
         /// - encodedLength: 16
         /// - version: 0
         #[inline]
-        pub fn volume(&mut self, value: [u8; 16]) {
+        pub fn volume(&mut self, value: &[u8]) {
+            debug_assert_eq!(16, value.len());
             let offset = self.offset + 110;
             let buf = self.get_buf_mut();
-            buf.put_bytes_at(offset, value);
+            buf.put_slice_at(offset, value);
+        }
+
+        /// primitive array field 'volume' from an Iterator
+        /// - min value: 0
+        /// - max value: 254
+        /// - null value: 0xff_u8
+        /// - characterEncoding: null
+        /// - semanticType: null
+        /// - encodedOffset: 110
+        /// - encodedLength: 16
+        /// - version: 0
+        #[inline]
+        pub fn volume_from_iter(&mut self, iter: impl Iterator<Item = u8>) {
+            let offset = self.offset + 110;
+            let buf = self.get_buf_mut();
+            for (i, v) in iter.enumerate() {
+                buf.put_u8_at(offset + i, v);
+            }
+        }
+
+        /// primitive array field 'volume' with zero padding
+        /// - min value: 0
+        /// - max value: 254
+        /// - null value: 0xff_u8
+        /// - characterEncoding: null
+        /// - semanticType: null
+        /// - encodedOffset: 110
+        /// - encodedLength: 16
+        /// - version: 0
+        #[inline]
+        pub fn volume_zero_padded(&mut self, value: &[u8]) {
+            let iter = value
+                .iter()
+                .copied()
+                .chain(std::iter::repeat(0_u8))
+                .take(16);
+            self.volume_from_iter(iter);
+        }
+
+        #[inline]
+        pub fn quote_volume_at(&mut self, index: usize, value: u8) {
+            let offset = self.offset + 126;
+            let buf = self.get_buf_mut();
+            buf.put_u8_at(offset + index, value);
         }
 
         /// primitive array field 'quoteVolume'
         /// - min value: 0
         /// - max value: 254
-        /// - null value: 255
+        /// - null value: 0xff_u8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 126
         /// - encodedLength: 16
         /// - version: 0
         #[inline]
-        pub fn quote_volume(&mut self, value: [u8; 16]) {
+        pub fn quote_volume(&mut self, value: &[u8]) {
+            debug_assert_eq!(16, value.len());
             let offset = self.offset + 126;
             let buf = self.get_buf_mut();
-            buf.put_bytes_at(offset, value);
+            buf.put_slice_at(offset, value);
+        }
+
+        /// primitive array field 'quoteVolume' from an Iterator
+        /// - min value: 0
+        /// - max value: 254
+        /// - null value: 0xff_u8
+        /// - characterEncoding: null
+        /// - semanticType: null
+        /// - encodedOffset: 126
+        /// - encodedLength: 16
+        /// - version: 0
+        #[inline]
+        pub fn quote_volume_from_iter(&mut self, iter: impl Iterator<Item = u8>) {
+            let offset = self.offset + 126;
+            let buf = self.get_buf_mut();
+            for (i, v) in iter.enumerate() {
+                buf.put_u8_at(offset + i, v);
+            }
+        }
+
+        /// primitive array field 'quoteVolume' with zero padding
+        /// - min value: 0
+        /// - max value: 254
+        /// - null value: 0xff_u8
+        /// - characterEncoding: null
+        /// - semanticType: null
+        /// - encodedOffset: 126
+        /// - encodedLength: 16
+        /// - version: 0
+        #[inline]
+        pub fn quote_volume_zero_padded(&mut self, value: &[u8]) {
+            let iter = value
+                .iter()
+                .copied()
+                .chain(std::iter::repeat(0_u8))
+                .take(16);
+            self.quote_volume_from_iter(iter);
         }
 
         /// primitive field 'openTime'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 142
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn open_time(&mut self, value: i64) {
             let offset = self.offset + 142;
@@ -423,11 +575,12 @@ pub mod encoder {
         /// primitive field 'closeTime'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 150
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn close_time(&mut self, value: i64) {
             let offset = self.offset + 150;
@@ -437,11 +590,12 @@ pub mod encoder {
         /// primitive field 'firstId'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 158
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn first_id(&mut self, value: i64) {
             let offset = self.offset + 158;
@@ -451,11 +605,12 @@ pub mod encoder {
         /// primitive field 'lastId'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 166
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn last_id(&mut self, value: i64) {
             let offset = self.offset + 166;
@@ -465,11 +620,12 @@ pub mod encoder {
         /// primitive field 'numTrades'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 174
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn num_trades(&mut self, value: i64) {
             let offset = self.offset + 174;
@@ -490,6 +646,7 @@ pub mod encoder {
 
 pub mod decoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Clone, Copy, Debug, Default)]
     pub struct Ticker24hFullResponseDecoder<'a> {
@@ -499,6 +656,13 @@ pub mod decoder {
         limit: usize,
         pub acting_block_length: u16,
         pub acting_version: u16,
+    }
+
+    impl ActingVersion for Ticker24hFullResponseDecoder<'_> {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.acting_version
+        }
     }
 
     impl<'a> Reader<'a> for Ticker24hFullResponseDecoder<'a> {
@@ -543,14 +707,14 @@ pub mod decoder {
             self.limit - self.offset
         }
 
-        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>) -> Self {
+        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>, offset: usize) -> Self {
             debug_assert_eq!(SBE_TEMPLATE_ID, header.template_id());
             let acting_block_length = header.block_length();
             let acting_version = header.version();
 
             self.wrap(
                 header.parent().unwrap(),
-                message_header_codec::ENCODED_LENGTH,
+                offset + message_header_codec::ENCODED_LENGTH,
                 acting_block_length,
                 acting_version,
             )
@@ -566,10 +730,20 @@ pub mod decoder {
     #[derive(Debug, Default)]
     pub struct TickersDecoder<P> {
         parent: Option<P>,
-        block_length: usize,
+        block_length: u16,
         count: u32,
         index: usize,
         offset: usize,
+    }
+
+    impl<'a, P> ActingVersion for TickersDecoder<P>
+    where
+        P: Reader<'a> + ActingVersion + Default,
+    {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
     }
 
     impl<'a, P> Reader<'a> for TickersDecoder<P>
@@ -584,7 +758,7 @@ pub mod decoder {
 
     impl<'a, P> Decoder<'a> for TickersDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         #[inline]
         fn get_limit(&self) -> usize {
@@ -602,11 +776,11 @@ pub mod decoder {
 
     impl<'a, P> TickersDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         pub fn wrap(mut self, mut parent: P) -> Self {
             let initial_offset = parent.get_limit();
-            let block_length = parent.get_buf().get_u16_at(initial_offset) as usize;
+            let block_length = parent.get_buf().get_u16_at(initial_offset);
             let count = parent.get_buf().get_u32_at(initial_offset + 2);
             parent.set_limit(initial_offset + 6);
             self.parent = Some(parent);
@@ -624,6 +798,11 @@ pub mod decoder {
         }
 
         #[inline]
+        pub fn acting_version(&mut self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
+
+        #[inline]
         pub fn count(&self) -> u32 {
             self.count
         }
@@ -636,7 +815,7 @@ pub mod decoder {
             }
             if let Some(parent) = self.parent.as_mut() {
                 self.offset = parent.get_limit();
-                parent.set_limit(self.offset + self.block_length);
+                parent.set_limit(self.offset + self.block_length as usize);
                 self.index = index;
                 Ok(Some(index))
             } else {
@@ -656,7 +835,7 @@ pub mod decoder {
             self.get_buf().get_i8_at(self.offset + 1)
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn price_change(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 2);
@@ -667,7 +846,7 @@ pub mod decoder {
             }
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: 'NaN' }
+        /// primitive field - 'OPTIONAL' { null_value: 'f32::NAN' }
         #[inline]
         pub fn price_change_percent(&self) -> Option<f32> {
             let value = self.get_buf().get_f32_at(self.offset + 10);
@@ -678,7 +857,7 @@ pub mod decoder {
             }
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn weighted_avg_price(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 14);
@@ -689,7 +868,7 @@ pub mod decoder {
             }
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn prev_close_price(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 22);
@@ -700,7 +879,7 @@ pub mod decoder {
             }
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn last_price(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 30);
@@ -717,7 +896,7 @@ pub mod decoder {
             ReadBuf::get_bytes_at(buf.data, self.offset + 38)
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn bid_price(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 54);
@@ -734,7 +913,7 @@ pub mod decoder {
             self.get_buf().get_i64_at(self.offset + 62)
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn ask_price(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 70);
@@ -751,7 +930,7 @@ pub mod decoder {
             self.get_buf().get_i64_at(self.offset + 78)
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn open_price(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 86);
@@ -762,7 +941,7 @@ pub mod decoder {
             }
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn high_price(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 94);
@@ -773,7 +952,7 @@ pub mod decoder {
             }
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn low_price(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 102);
@@ -808,7 +987,7 @@ pub mod decoder {
             self.get_buf().get_i64_at(self.offset + 150)
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn first_id(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 158);
@@ -819,7 +998,7 @@ pub mod decoder {
             }
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn last_id(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 166);
