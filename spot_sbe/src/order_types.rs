@@ -116,11 +116,26 @@ impl OrderTypes {
         };
         self
     }
+
+    #[inline]
+    pub fn get_non_representable(&self) -> bool {
+        0 != self.0 & (1 << 15)
+    }
+
+    #[inline]
+    pub fn set_non_representable(&mut self, value: bool) -> &mut Self {
+        self.0 = if value {
+            self.0 | (1 << 15)
+        } else {
+            self.0 & !(1 << 15)
+        };
+        self
+    }
 }
 impl core::fmt::Debug for OrderTypes {
     #[inline]
-    fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::fmt::Result {
-        write!(fmt, "OrderTypes[market(0)={},limit(1)={},stop_loss(2)={},stop_loss_limit(3)={},take_profit(4)={},take_profit_limit(5)={},limit_maker(6)={}]",
-            self.get_market(),self.get_limit(),self.get_stop_loss(),self.get_stop_loss_limit(),self.get_take_profit(),self.get_take_profit_limit(),self.get_limit_maker(),)
+    fn fmt(&self, fmt: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(fmt, "OrderTypes[market(0)={},limit(1)={},stop_loss(2)={},stop_loss_limit(3)={},take_profit(4)={},take_profit_limit(5)={},limit_maker(6)={},non_representable(15)={}]",
+            self.get_market(),self.get_limit(),self.get_stop_loss(),self.get_stop_loss_limit(),self.get_take_profit(),self.get_take_profit_limit(),self.get_limit_maker(),self.get_non_representable(),)
     }
 }

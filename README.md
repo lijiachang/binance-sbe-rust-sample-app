@@ -23,7 +23,7 @@ The following commands fetch the exchangeInfo SBE response, which the sbe-sample
 ### Pipe REST exchangeInfo SBE response into sbe-sample-app
 
 ```shell
-curl -X GET -H 'Accept: application/sbe' -H 'X-MBX-SBE: 1:0' \
+curl -X GET -H 'Accept: application/sbe' -H 'X-MBX-SBE: 3:1' \
     'https://api.binance.com/api/v3/exchangeInfo' \
     | ./target/debug/sbe-sample-app
 ```
@@ -32,7 +32,7 @@ curl -X GET -H 'Accept: application/sbe' -H 'X-MBX-SBE: 1:0' \
 
 ```shell
 echo '{"id":"93fb61ef-89f8-4d6e-b022-4f035a3fadad","method":"exchangeInfo","params":{"symbol":"BTCUSDT"}}' \
-    | ./tools/websocket_send.py  'wss://ws-api.binance.com:443/ws-api/v3?responseFormat=sbe&sbeSchemaId=1&sbeSchemaVersion=0' \
+    | ../tools/websocket_send.py  'wss://ws-api.binance.com:443/ws-api/v3?responseFormat=sbe&sbeSchemaId=3&sbeSchemaVersion=1' \
     | ./target/debug/sbe-sample-app
 ```
 
@@ -61,7 +61,7 @@ curl -o spot_latest.xml https://raw.githubusercontent.com/binance/binance-spot-a
 
 2) Clone & build [simple-binary-encoding](https://github.com/real-logic/simple-binary-encoding):
 ```shell
-git clone https://github.com/real-logic/simple-binary-encoding.git --branch 1.30.0
+git clone https://github.com/real-logic/simple-binary-encoding.git --branch 1.35.6
 cd simple-binary-encoding
 ./gradlew
 cd ..
@@ -72,7 +72,7 @@ cd ..
 java \
     -Dsbe.output.dir=. \
     -Dsbe.target.language=Rust \
-    -jar simple-binary-encoding/sbe-all/build/libs/sbe-all-1.30.0.jar \
+    -jar simple-binary-encoding/sbe-all/build/libs/sbe-all-1.35.6.jar \
     spot_latest.xml
 ```
 

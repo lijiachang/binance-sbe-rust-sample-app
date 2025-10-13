@@ -3,14 +3,16 @@ use crate::*;
 pub use decoder::AccountCommissionResponseDecoder;
 pub use encoder::AccountCommissionResponseEncoder;
 
-pub const SBE_BLOCK_LENGTH: u16 = 76;
+pub use crate::SBE_SCHEMA_ID;
+pub use crate::SBE_SCHEMA_VERSION;
+pub use crate::SBE_SEMANTIC_VERSION;
+
+pub const SBE_BLOCK_LENGTH: u16 = 108;
 pub const SBE_TEMPLATE_ID: u16 = 405;
-pub const SBE_SCHEMA_ID: u16 = 1;
-pub const SBE_SCHEMA_VERSION: u16 = 0;
-pub const SBE_SEMANTIC_VERSION: &str = "5.2";
 
 pub mod encoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Debug, Default)]
     pub struct AccountCommissionResponseEncoder<'a> {
@@ -66,11 +68,12 @@ pub mod encoder {
         /// primitive field 'commissionExponent'
         /// - min value: -127
         /// - max value: 127
-        /// - null value: -128
+        /// - null value: -128_i8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 0
         /// - encodedLength: 1
+        /// - version: 0
         #[inline]
         pub fn commission_exponent(&mut self, value: i8) {
             let offset = self.offset;
@@ -80,11 +83,12 @@ pub mod encoder {
         /// primitive field 'discountExponent'
         /// - min value: -127
         /// - max value: 127
-        /// - null value: -128
+        /// - null value: -128_i8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 1
         /// - encodedLength: 1
+        /// - version: 0
         #[inline]
         pub fn discount_exponent(&mut self, value: i8) {
             let offset = self.offset + 1;
@@ -94,11 +98,12 @@ pub mod encoder {
         /// primitive field 'standardCommissionMaker'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 2
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn standard_commission_maker(&mut self, value: i64) {
             let offset = self.offset + 2;
@@ -108,11 +113,12 @@ pub mod encoder {
         /// primitive field 'standardCommissionTaker'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 10
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn standard_commission_taker(&mut self, value: i64) {
             let offset = self.offset + 10;
@@ -122,11 +128,12 @@ pub mod encoder {
         /// primitive field 'standardCommissionBuyer'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 18
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn standard_commission_buyer(&mut self, value: i64) {
             let offset = self.offset + 18;
@@ -136,11 +143,12 @@ pub mod encoder {
         /// primitive field 'standardCommissionSeller'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 26
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn standard_commission_seller(&mut self, value: i64) {
             let offset = self.offset + 26;
@@ -150,11 +158,12 @@ pub mod encoder {
         /// primitive field 'taxCommissionMaker'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 34
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn tax_commission_maker(&mut self, value: i64) {
             let offset = self.offset + 34;
@@ -164,11 +173,12 @@ pub mod encoder {
         /// primitive field 'taxCommissionTaker'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 42
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn tax_commission_taker(&mut self, value: i64) {
             let offset = self.offset + 42;
@@ -178,11 +188,12 @@ pub mod encoder {
         /// primitive field 'taxCommissionBuyer'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 50
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn tax_commission_buyer(&mut self, value: i64) {
             let offset = self.offset + 50;
@@ -192,11 +203,12 @@ pub mod encoder {
         /// primitive field 'taxCommissionSeller'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 58
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn tax_commission_seller(&mut self, value: i64) {
             let offset = self.offset + 58;
@@ -205,14 +217,14 @@ pub mod encoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn discount_enabled_for_account(&mut self, value: BoolEnum) {
+        pub fn discount_enabled_for_account(&mut self, value: bool_enum::BoolEnum) {
             let offset = self.offset + 66;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn discount_enabled_for_symbol(&mut self, value: BoolEnum) {
+        pub fn discount_enabled_for_symbol(&mut self, value: bool_enum::BoolEnum) {
             let offset = self.offset + 67;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
@@ -220,14 +232,75 @@ pub mod encoder {
         /// primitive field 'discount'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 68
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn discount(&mut self, value: i64) {
             let offset = self.offset + 68;
+            self.get_buf_mut().put_i64_at(offset, value);
+        }
+
+        /// primitive field 'specialCommissionMaker'
+        /// - min value: -9223372036854775807
+        /// - max value: 9223372036854775807
+        /// - null value: -9223372036854775808_i64
+        /// - characterEncoding: null
+        /// - semanticType: null
+        /// - encodedOffset: 76
+        /// - encodedLength: 8
+        /// - version: 1
+        #[inline]
+        pub fn special_commission_maker(&mut self, value: i64) {
+            let offset = self.offset + 76;
+            self.get_buf_mut().put_i64_at(offset, value);
+        }
+
+        /// primitive field 'specialCommissionTaker'
+        /// - min value: -9223372036854775807
+        /// - max value: 9223372036854775807
+        /// - null value: -9223372036854775808_i64
+        /// - characterEncoding: null
+        /// - semanticType: null
+        /// - encodedOffset: 84
+        /// - encodedLength: 8
+        /// - version: 1
+        #[inline]
+        pub fn special_commission_taker(&mut self, value: i64) {
+            let offset = self.offset + 84;
+            self.get_buf_mut().put_i64_at(offset, value);
+        }
+
+        /// primitive field 'specialCommissionBuyer'
+        /// - min value: -9223372036854775807
+        /// - max value: 9223372036854775807
+        /// - null value: -9223372036854775808_i64
+        /// - characterEncoding: null
+        /// - semanticType: null
+        /// - encodedOffset: 92
+        /// - encodedLength: 8
+        /// - version: 1
+        #[inline]
+        pub fn special_commission_buyer(&mut self, value: i64) {
+            let offset = self.offset + 92;
+            self.get_buf_mut().put_i64_at(offset, value);
+        }
+
+        /// primitive field 'specialCommissionSeller'
+        /// - min value: -9223372036854775807
+        /// - max value: 9223372036854775807
+        /// - null value: -9223372036854775808_i64
+        /// - characterEncoding: null
+        /// - semanticType: null
+        /// - encodedOffset: 100
+        /// - encodedLength: 8
+        /// - version: 1
+        #[inline]
+        pub fn special_commission_seller(&mut self, value: i64) {
+            let offset = self.offset + 100;
             self.get_buf_mut().put_i64_at(offset, value);
         }
 
@@ -255,6 +328,7 @@ pub mod encoder {
 
 pub mod decoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Clone, Copy, Debug, Default)]
     pub struct AccountCommissionResponseDecoder<'a> {
@@ -264,6 +338,13 @@ pub mod decoder {
         limit: usize,
         pub acting_block_length: u16,
         pub acting_version: u16,
+    }
+
+    impl ActingVersion for AccountCommissionResponseDecoder<'_> {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.acting_version
+        }
     }
 
     impl<'a> Reader<'a> for AccountCommissionResponseDecoder<'a> {
@@ -308,14 +389,14 @@ pub mod decoder {
             self.limit - self.offset
         }
 
-        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>) -> Self {
+        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>, offset: usize) -> Self {
             debug_assert_eq!(SBE_TEMPLATE_ID, header.template_id());
             let acting_block_length = header.block_length();
             let acting_version = header.version();
 
             self.wrap(
                 header.parent().unwrap(),
-                message_header_codec::ENCODED_LENGTH,
+                offset + message_header_codec::ENCODED_LENGTH,
                 acting_block_length,
                 acting_version,
             )
@@ -383,13 +464,13 @@ pub mod decoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn discount_enabled_for_account(&self) -> BoolEnum {
+        pub fn discount_enabled_for_account(&self) -> bool_enum::BoolEnum {
             self.get_buf().get_u8_at(self.offset + 66).into()
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn discount_enabled_for_symbol(&self) -> BoolEnum {
+        pub fn discount_enabled_for_symbol(&self) -> bool_enum::BoolEnum {
             self.get_buf().get_u8_at(self.offset + 67).into()
         }
 
@@ -397,6 +478,66 @@ pub mod decoder {
         #[inline]
         pub fn discount(&self) -> i64 {
             self.get_buf().get_i64_at(self.offset + 68)
+        }
+
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
+        #[inline]
+        pub fn special_commission_maker(&self) -> Option<i64> {
+            if self.acting_version() < 1 {
+                return None;
+            }
+
+            let value = self.get_buf().get_i64_at(self.offset + 76);
+            if value == -9223372036854775808_i64 {
+                None
+            } else {
+                Some(value)
+            }
+        }
+
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
+        #[inline]
+        pub fn special_commission_taker(&self) -> Option<i64> {
+            if self.acting_version() < 1 {
+                return None;
+            }
+
+            let value = self.get_buf().get_i64_at(self.offset + 84);
+            if value == -9223372036854775808_i64 {
+                None
+            } else {
+                Some(value)
+            }
+        }
+
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
+        #[inline]
+        pub fn special_commission_buyer(&self) -> Option<i64> {
+            if self.acting_version() < 1 {
+                return None;
+            }
+
+            let value = self.get_buf().get_i64_at(self.offset + 92);
+            if value == -9223372036854775808_i64 {
+                None
+            } else {
+                Some(value)
+            }
+        }
+
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
+        #[inline]
+        pub fn special_commission_seller(&self) -> Option<i64> {
+            if self.acting_version() < 1 {
+                return None;
+            }
+
+            let value = self.get_buf().get_i64_at(self.offset + 100);
+            if value == -9223372036854775808_i64 {
+                None
+            } else {
+                Some(value)
+            }
         }
 
         /// VAR_DATA DECODER - character encoding: 'UTF-8'

@@ -44,11 +44,12 @@ pub mod encoder {
         /// primitive field 'length'
         /// - min value: 0
         /// - max value: 254
-        /// - null value: 255
+        /// - null value: 0xff_u8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 0
         /// - encodedLength: 1
+        /// - version: 0
         #[inline]
         pub fn length(&mut self, value: u8) {
             let offset = self.offset;
@@ -58,11 +59,12 @@ pub mod encoder {
         /// primitive field 'varData'
         /// - min value: 0
         /// - max value: 254
-        /// - null value: 255
+        /// - null value: 0xff_u8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 1
         /// - encodedLength: -1
+        /// - version: 0
         #[inline]
         pub fn var_data(&mut self, value: u8) {
             let offset = self.offset + 1;
@@ -78,6 +80,16 @@ pub mod decoder {
     pub struct MessageData8Decoder<P> {
         parent: Option<P>,
         offset: usize,
+    }
+
+    impl<'a, P> ActingVersion for MessageData8Decoder<P>
+    where
+        P: Reader<'a> + ActingVersion + Default,
+    {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
     }
 
     impl<'a, P> Reader<'a> for MessageData8Decoder<P>

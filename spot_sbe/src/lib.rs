@@ -1,7 +1,8 @@
 #![forbid(unsafe_code)]
-#![allow(ambiguous_glob_reexports)]
-#![allow(clippy::upper_case_acronyms)]
+#![allow(clippy::all)]
 #![allow(non_camel_case_types)]
+#![allow(ambiguous_glob_reexports)]
+
 use ::core::convert::TryInto;
 
 pub mod account_allocations_response_codec;
@@ -15,6 +16,7 @@ pub mod agg_trades_response_codec;
 pub mod allocation_type;
 pub mod allowed_self_trade_prevention_modes;
 pub mod average_price_response_codec;
+pub mod balance_update_event_codec;
 pub mod book_ticker_response_codec;
 pub mod book_ticker_symbol_response_codec;
 pub mod bool_enum;
@@ -26,10 +28,15 @@ pub mod cancel_replace_status;
 pub mod contingency_type;
 pub mod depth_response_codec;
 pub mod error_response_codec;
+pub mod event_stream_terminated_event_codec;
 pub mod exchange_info_response_codec;
 pub mod exchange_max_num_algo_orders_filter_codec;
 pub mod exchange_max_num_iceberg_orders_filter_codec;
+pub mod exchange_max_num_order_lists_filter_codec;
 pub mod exchange_max_num_orders_filter_codec;
+pub mod execution_report_event_codec;
+pub mod execution_type;
+pub mod external_lock_update_event_codec;
 pub mod filter_type;
 pub mod floor;
 pub mod group_size_16_encoding_codec;
@@ -37,12 +44,16 @@ pub mod group_size_encoding_codec;
 pub mod iceberg_parts_filter_codec;
 pub mod klines_response_codec;
 pub mod list_order_status;
+pub mod list_status_event_codec;
 pub mod list_status_type;
 pub mod lot_size_filter_codec;
 pub mod market_lot_size_filter_codec;
 pub mod match_type;
+pub mod max_asset_filter_codec;
 pub mod max_num_algo_orders_filter_codec;
 pub mod max_num_iceberg_orders_filter_codec;
+pub mod max_num_order_amends_filter_codec;
+pub mod max_num_order_lists_filter_codec;
 pub mod max_num_orders_filter_codec;
 pub mod max_position_filter_codec;
 pub mod message_data_16_codec;
@@ -50,17 +61,21 @@ pub mod message_data_8_codec;
 pub mod message_data_codec;
 pub mod message_header_codec;
 pub mod min_notional_filter_codec;
+pub mod my_filters_response_codec;
 pub mod new_order_ack_response_codec;
 pub mod new_order_full_response_codec;
 pub mod new_order_list_ack_response_codec;
 pub mod new_order_list_full_response_codec;
 pub mod new_order_list_result_response_codec;
 pub mod new_order_result_response_codec;
+pub mod non_representable_message_codec;
 pub mod notional_filter_codec;
 pub mod optional_message_data_16_codec;
 pub mod optional_message_data_codec;
 pub mod optional_var_string_8_codec;
 pub mod optional_var_string_codec;
+pub mod order_amend_keep_priority_response_codec;
+pub mod order_amendments_response_codec;
 pub mod order_capacity;
 pub mod order_list_response_codec;
 pub mod order_lists_response_codec;
@@ -72,6 +87,9 @@ pub mod order_test_with_commissions_response_codec;
 pub mod order_type;
 pub mod order_types;
 pub mod orders_response_codec;
+pub mod outbound_account_position_event_codec;
+pub mod peg_offset_type;
+pub mod peg_price_type;
 pub mod percent_price_by_side_filter_codec;
 pub mod percent_price_filter_codec;
 pub mod ping_response_codec;
@@ -98,113 +116,19 @@ pub mod trailing_delta_filter_codec;
 pub mod user_data_stream_ping_response_codec;
 pub mod user_data_stream_start_response_codec;
 pub mod user_data_stream_stop_response_codec;
+pub mod user_data_stream_subscribe_response_codec;
+pub mod user_data_stream_unsubscribe_response_codec;
 pub mod var_string_8_codec;
 pub mod var_string_codec;
 pub mod web_socket_response_codec;
 pub mod web_socket_session_logon_response_codec;
 pub mod web_socket_session_logout_response_codec;
 pub mod web_socket_session_status_response_codec;
+pub mod web_socket_session_subscriptions_response_codec;
 
-pub use crate::account_allocations_response_codec::*;
-pub use crate::account_commission_response_codec::*;
-pub use crate::account_order_rate_limit_response_codec::*;
-pub use crate::account_prevented_matches_response_codec::*;
-pub use crate::account_response_codec::*;
-pub use crate::account_trades_response_codec::*;
-pub use crate::account_type::*;
-pub use crate::agg_trades_response_codec::*;
-pub use crate::allocation_type::*;
-pub use crate::allowed_self_trade_prevention_modes::*;
-pub use crate::average_price_response_codec::*;
-pub use crate::book_ticker_response_codec::*;
-pub use crate::book_ticker_symbol_response_codec::*;
-pub use crate::bool_enum::*;
-pub use crate::cancel_open_orders_response_codec::*;
-pub use crate::cancel_order_list_response_codec::*;
-pub use crate::cancel_order_response_codec::*;
-pub use crate::cancel_replace_order_response_codec::*;
-pub use crate::cancel_replace_status::*;
-pub use crate::contingency_type::*;
-pub use crate::depth_response_codec::*;
-pub use crate::error_response_codec::*;
-pub use crate::exchange_info_response_codec::*;
-pub use crate::exchange_max_num_algo_orders_filter_codec::*;
-pub use crate::exchange_max_num_iceberg_orders_filter_codec::*;
-pub use crate::exchange_max_num_orders_filter_codec::*;
-pub use crate::filter_type::*;
-pub use crate::floor::*;
-pub use crate::group_size_16_encoding_codec::*;
-pub use crate::group_size_encoding_codec::*;
-pub use crate::iceberg_parts_filter_codec::*;
-pub use crate::klines_response_codec::*;
-pub use crate::list_order_status::*;
-pub use crate::list_status_type::*;
-pub use crate::lot_size_filter_codec::*;
-pub use crate::market_lot_size_filter_codec::*;
-pub use crate::match_type::*;
-pub use crate::max_num_algo_orders_filter_codec::*;
-pub use crate::max_num_iceberg_orders_filter_codec::*;
-pub use crate::max_num_orders_filter_codec::*;
-pub use crate::max_position_filter_codec::*;
-pub use crate::message_data_16_codec::*;
-pub use crate::message_data_8_codec::*;
-pub use crate::message_data_codec::*;
-pub use crate::message_header_codec::*;
-pub use crate::min_notional_filter_codec::*;
-pub use crate::new_order_ack_response_codec::*;
-pub use crate::new_order_full_response_codec::*;
-pub use crate::new_order_list_ack_response_codec::*;
-pub use crate::new_order_list_full_response_codec::*;
-pub use crate::new_order_list_result_response_codec::*;
-pub use crate::new_order_result_response_codec::*;
-pub use crate::notional_filter_codec::*;
-pub use crate::optional_message_data_16_codec::*;
-pub use crate::optional_message_data_codec::*;
-pub use crate::optional_var_string_8_codec::*;
-pub use crate::optional_var_string_codec::*;
-pub use crate::order_capacity::*;
-pub use crate::order_list_response_codec::*;
-pub use crate::order_lists_response_codec::*;
-pub use crate::order_response_codec::*;
-pub use crate::order_side::*;
-pub use crate::order_status::*;
-pub use crate::order_test_response_codec::*;
-pub use crate::order_test_with_commissions_response_codec::*;
-pub use crate::order_type::*;
-pub use crate::order_types::*;
-pub use crate::orders_response_codec::*;
-pub use crate::percent_price_by_side_filter_codec::*;
-pub use crate::percent_price_filter_codec::*;
-pub use crate::ping_response_codec::*;
-pub use crate::price_filter_codec::*;
-pub use crate::price_ticker_response_codec::*;
-pub use crate::price_ticker_symbol_response_codec::*;
-pub use crate::rate_limit_interval::*;
-pub use crate::rate_limit_type::*;
-pub use crate::self_trade_prevention_mode::*;
-pub use crate::server_time_response_codec::*;
-pub use crate::symbol_status::*;
-pub use crate::ticker_24_hf_ull_response_codec::*;
-pub use crate::ticker_24_hm_ini_response_codec::*;
-pub use crate::ticker_24_hs_ymbol_full_response_codec::*;
-pub use crate::ticker_24_hs_ymbol_mini_response_codec::*;
-pub use crate::ticker_full_response_codec::*;
-pub use crate::ticker_mini_response_codec::*;
-pub use crate::ticker_symbol_full_response_codec::*;
-pub use crate::ticker_symbol_mini_response_codec::*;
-pub use crate::time_in_force::*;
-pub use crate::tp_lus_sell_filter_codec::*;
-pub use crate::trades_response_codec::*;
-pub use crate::trailing_delta_filter_codec::*;
-pub use crate::user_data_stream_ping_response_codec::*;
-pub use crate::user_data_stream_start_response_codec::*;
-pub use crate::user_data_stream_stop_response_codec::*;
-pub use crate::var_string_8_codec::*;
-pub use crate::var_string_codec::*;
-pub use crate::web_socket_response_codec::*;
-pub use crate::web_socket_session_logon_response_codec::*;
-pub use crate::web_socket_session_logout_response_codec::*;
-pub use crate::web_socket_session_status_response_codec::*;
+pub const SBE_SCHEMA_ID: u16 = 3;
+pub const SBE_SCHEMA_VERSION: u16 = 1;
+pub const SBE_SEMANTIC_VERSION: &str = "5.2";
 
 pub type SbeResult<T> = core::result::Result<T, SbeErr>;
 
@@ -235,6 +159,10 @@ pub trait Encoder<'a>: Writer<'a> {
     fn set_limit(&mut self, limit: usize);
 }
 
+pub trait ActingVersion {
+    fn acting_version(&self) -> u16;
+}
+
 pub trait Reader<'a>: Sized {
     fn get_buf(&self) -> &ReadBuf<'a>;
 }
@@ -254,15 +182,11 @@ impl<'a> Reader<'a> for ReadBuf<'a> {
         self
     }
 }
+#[allow(dead_code)]
 impl<'a> ReadBuf<'a> {
     #[inline]
     pub fn new(data: &'a [u8]) -> Self {
         Self { data }
-    }
-
-    #[inline]
-    fn get_bytes<const COUNT: usize>(slice: &[u8]) -> [u8; COUNT] {
-        slice.try_into().expect("slice with incorrect length")
     }
 
     #[inline]
@@ -338,8 +262,8 @@ impl<'a> WriteBuf<'a> {
     }
 
     #[inline]
-    pub fn put_bytes_at<const COUNT: usize>(&mut self, index: usize, bytes: [u8; COUNT]) -> usize {
-        self.data[index..index + COUNT].copy_from_slice(&bytes);
+    pub fn put_bytes_at<const COUNT: usize>(&mut self, index: usize, bytes: &[u8; COUNT]) -> usize {
+        self.data[index..index + COUNT].copy_from_slice(bytes);
         COUNT
     }
 
@@ -350,47 +274,47 @@ impl<'a> WriteBuf<'a> {
 
     #[inline]
     pub fn put_i8_at(&mut self, index: usize, value: i8) {
-        self.put_bytes_at(index, i8::to_le_bytes(value));
+        self.put_bytes_at(index, &i8::to_le_bytes(value));
     }
 
     #[inline]
     pub fn put_i16_at(&mut self, index: usize, value: i16) {
-        self.put_bytes_at(index, i16::to_le_bytes(value));
+        self.put_bytes_at(index, &i16::to_le_bytes(value));
     }
 
     #[inline]
     pub fn put_i32_at(&mut self, index: usize, value: i32) {
-        self.put_bytes_at(index, i32::to_le_bytes(value));
+        self.put_bytes_at(index, &i32::to_le_bytes(value));
     }
 
     #[inline]
     pub fn put_i64_at(&mut self, index: usize, value: i64) {
-        self.put_bytes_at(index, i64::to_le_bytes(value));
+        self.put_bytes_at(index, &i64::to_le_bytes(value));
     }
 
     #[inline]
     pub fn put_u16_at(&mut self, index: usize, value: u16) {
-        self.put_bytes_at(index, u16::to_le_bytes(value));
+        self.put_bytes_at(index, &u16::to_le_bytes(value));
     }
 
     #[inline]
     pub fn put_u32_at(&mut self, index: usize, value: u32) {
-        self.put_bytes_at(index, u32::to_le_bytes(value));
+        self.put_bytes_at(index, &u32::to_le_bytes(value));
     }
 
     #[inline]
     pub fn put_u64_at(&mut self, index: usize, value: u64) {
-        self.put_bytes_at(index, u64::to_le_bytes(value));
+        self.put_bytes_at(index, &u64::to_le_bytes(value));
     }
 
     #[inline]
     pub fn put_f32_at(&mut self, index: usize, value: f32) {
-        self.put_bytes_at(index, f32::to_le_bytes(value));
+        self.put_bytes_at(index, &f32::to_le_bytes(value));
     }
 
     #[inline]
     pub fn put_f64_at(&mut self, index: usize, value: f64) {
-        self.put_bytes_at(index, f64::to_le_bytes(value));
+        self.put_bytes_at(index, &f64::to_le_bytes(value));
     }
 
     #[inline]
@@ -399,5 +323,11 @@ impl<'a> WriteBuf<'a> {
         let dest = self.data.split_at_mut(index).1.split_at_mut(len).0;
         dest.clone_from_slice(src);
         len
+    }
+}
+impl<'a> From<&'a mut WriteBuf<'a>> for &'a mut [u8] {
+    #[inline]
+    fn from(buf: &'a mut WriteBuf<'a>) -> &'a mut [u8] {
+        buf.data
     }
 }

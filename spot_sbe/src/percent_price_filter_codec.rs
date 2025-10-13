@@ -3,14 +3,16 @@ use crate::*;
 pub use decoder::PercentPriceFilterDecoder;
 pub use encoder::PercentPriceFilterEncoder;
 
+pub use crate::SBE_SCHEMA_ID;
+pub use crate::SBE_SCHEMA_VERSION;
+pub use crate::SBE_SEMANTIC_VERSION;
+
 pub const SBE_BLOCK_LENGTH: u16 = 21;
 pub const SBE_TEMPLATE_ID: u16 = 2;
-pub const SBE_SCHEMA_ID: u16 = 1;
-pub const SBE_SCHEMA_VERSION: u16 = 0;
-pub const SBE_SEMANTIC_VERSION: &str = "5.2";
 
 pub mod encoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Debug, Default)]
     pub struct PercentPriceFilterEncoder<'a> {
@@ -68,11 +70,12 @@ pub mod encoder {
         /// primitive field 'multiplierExponent'
         /// - min value: -127
         /// - max value: 127
-        /// - null value: -128
+        /// - null value: -128_i8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 0
         /// - encodedLength: 1
+        /// - version: 0
         #[inline]
         pub fn multiplier_exponent(&mut self, value: i8) {
             let offset = self.offset;
@@ -82,11 +85,12 @@ pub mod encoder {
         /// primitive field 'multiplierUp'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 1
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn multiplier_up(&mut self, value: i64) {
             let offset = self.offset + 1;
@@ -96,11 +100,12 @@ pub mod encoder {
         /// primitive field 'multiplierDown'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 9
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn multiplier_down(&mut self, value: i64) {
             let offset = self.offset + 9;
@@ -110,11 +115,12 @@ pub mod encoder {
         /// primitive field 'avgPriceMins'
         /// - min value: -2147483647
         /// - max value: 2147483647
-        /// - null value: -2147483648
+        /// - null value: -2147483648_i32
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 17
         /// - encodedLength: 4
+        /// - version: 0
         #[inline]
         pub fn avg_price_mins(&mut self, value: i32) {
             let offset = self.offset + 17;
@@ -125,6 +131,7 @@ pub mod encoder {
 
 pub mod decoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Clone, Copy, Debug, Default)]
     pub struct PercentPriceFilterDecoder<'a> {
@@ -134,6 +141,13 @@ pub mod decoder {
         limit: usize,
         pub acting_block_length: u16,
         pub acting_version: u16,
+    }
+
+    impl ActingVersion for PercentPriceFilterDecoder<'_> {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.acting_version
+        }
     }
 
     impl<'a> Reader<'a> for PercentPriceFilterDecoder<'a> {
@@ -178,14 +192,14 @@ pub mod decoder {
             self.limit - self.offset
         }
 
-        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>) -> Self {
+        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>, offset: usize) -> Self {
             debug_assert_eq!(SBE_TEMPLATE_ID, header.template_id());
             let acting_block_length = header.block_length();
             let acting_version = header.version();
 
             self.wrap(
                 header.parent().unwrap(),
-                message_header_codec::ENCODED_LENGTH,
+                offset + message_header_codec::ENCODED_LENGTH,
                 acting_block_length,
                 acting_version,
             )
@@ -193,8 +207,8 @@ pub mod decoder {
 
         /// CONSTANT enum
         #[inline]
-        pub fn filter_type(&self) -> FilterType {
-            FilterType::PercentPrice
+        pub fn filter_type(&self) -> filter_type::FilterType {
+            filter_type::FilterType::PercentPrice
         }
 
         /// primitive field - 'REQUIRED'

@@ -46,11 +46,12 @@ pub mod encoder {
         /// primitive field 'blockLength'
         /// - min value: 0
         /// - max value: 65534
-        /// - null value: 65535
+        /// - null value: 0xffff_u16
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 0
         /// - encodedLength: 2
+        /// - version: 0
         #[inline]
         pub fn block_length(&mut self, value: u16) {
             let offset = self.offset;
@@ -60,11 +61,12 @@ pub mod encoder {
         /// primitive field 'numInGroup'
         /// - min value: 0
         /// - max value: 65534
-        /// - null value: 65535
+        /// - null value: 0xffff_u16
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 2
         /// - encodedLength: 2
+        /// - version: 0
         #[inline]
         pub fn num_in_group(&mut self, value: u16) {
             let offset = self.offset + 2;
@@ -80,6 +82,16 @@ pub mod decoder {
     pub struct GroupSize16EncodingDecoder<P> {
         parent: Option<P>,
         offset: usize,
+    }
+
+    impl<'a, P> ActingVersion for GroupSize16EncodingDecoder<P>
+    where
+        P: Reader<'a> + ActingVersion + Default,
+    {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
     }
 
     impl<'a, P> Reader<'a> for GroupSize16EncodingDecoder<P>

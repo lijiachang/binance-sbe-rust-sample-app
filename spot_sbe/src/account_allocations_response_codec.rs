@@ -3,14 +3,16 @@ use crate::*;
 pub use decoder::AccountAllocationsResponseDecoder;
 pub use encoder::AccountAllocationsResponseEncoder;
 
+pub use crate::SBE_SCHEMA_ID;
+pub use crate::SBE_SCHEMA_VERSION;
+pub use crate::SBE_SEMANTIC_VERSION;
+
 pub const SBE_BLOCK_LENGTH: u16 = 0;
 pub const SBE_TEMPLATE_ID: u16 = 404;
-pub const SBE_SCHEMA_ID: u16 = 1;
-pub const SBE_SCHEMA_VERSION: u16 = 0;
-pub const SBE_SEMANTIC_VERSION: &str = "5.2";
 
 pub mod encoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Debug, Default)]
     pub struct AccountAllocationsResponseEncoder<'a> {
@@ -165,11 +167,12 @@ pub mod encoder {
         /// primitive field 'priceExponent'
         /// - min value: -127
         /// - max value: 127
-        /// - null value: -128
+        /// - null value: -128_i8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 0
         /// - encodedLength: 1
+        /// - version: 0
         #[inline]
         pub fn price_exponent(&mut self, value: i8) {
             let offset = self.offset;
@@ -179,11 +182,12 @@ pub mod encoder {
         /// primitive field 'qtyExponent'
         /// - min value: -127
         /// - max value: 127
-        /// - null value: -128
+        /// - null value: -128_i8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 1
         /// - encodedLength: 1
+        /// - version: 0
         #[inline]
         pub fn qty_exponent(&mut self, value: i8) {
             let offset = self.offset + 1;
@@ -193,11 +197,12 @@ pub mod encoder {
         /// primitive field 'commissionExponent'
         /// - min value: -127
         /// - max value: 127
-        /// - null value: -128
+        /// - null value: -128_i8
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 2
         /// - encodedLength: 1
+        /// - version: 0
         #[inline]
         pub fn commission_exponent(&mut self, value: i8) {
             let offset = self.offset + 2;
@@ -207,11 +212,12 @@ pub mod encoder {
         /// primitive field 'allocationId'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 3
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn allocation_id(&mut self, value: i64) {
             let offset = self.offset + 3;
@@ -220,7 +226,7 @@ pub mod encoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn allocation_type(&mut self, value: AllocationType) {
+        pub fn allocation_type(&mut self, value: allocation_type::AllocationType) {
             let offset = self.offset + 11;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
@@ -228,11 +234,12 @@ pub mod encoder {
         /// primitive field 'orderId'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 12
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn order_id(&mut self, value: i64) {
             let offset = self.offset + 12;
@@ -242,11 +249,12 @@ pub mod encoder {
         /// primitive field 'orderListId'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 20
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn order_list_id(&mut self, value: i64) {
             let offset = self.offset + 20;
@@ -256,11 +264,12 @@ pub mod encoder {
         /// primitive field 'sourceTradeId'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 28
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn source_trade_id(&mut self, value: i64) {
             let offset = self.offset + 28;
@@ -270,11 +279,12 @@ pub mod encoder {
         /// primitive field 'sourceAllocationId'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 36
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn source_allocation_id(&mut self, value: i64) {
             let offset = self.offset + 36;
@@ -284,11 +294,12 @@ pub mod encoder {
         /// primitive field 'price'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 44
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn price(&mut self, value: i64) {
             let offset = self.offset + 44;
@@ -298,11 +309,12 @@ pub mod encoder {
         /// primitive field 'qty'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 52
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn qty(&mut self, value: i64) {
             let offset = self.offset + 52;
@@ -312,11 +324,12 @@ pub mod encoder {
         /// primitive field 'quoteQty'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 60
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn quote_qty(&mut self, value: i64) {
             let offset = self.offset + 60;
@@ -326,11 +339,12 @@ pub mod encoder {
         /// primitive field 'commission'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 68
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn commission(&mut self, value: i64) {
             let offset = self.offset + 68;
@@ -340,11 +354,12 @@ pub mod encoder {
         /// primitive field 'time'
         /// - min value: -9223372036854775807
         /// - max value: 9223372036854775807
-        /// - null value: -9223372036854775808
+        /// - null value: -9223372036854775808_i64
         /// - characterEncoding: null
         /// - semanticType: null
         /// - encodedOffset: 76
         /// - encodedLength: 8
+        /// - version: 0
         #[inline]
         pub fn time(&mut self, value: i64) {
             let offset = self.offset + 76;
@@ -353,21 +368,21 @@ pub mod encoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn is_buyer(&mut self, value: BoolEnum) {
+        pub fn is_buyer(&mut self, value: bool_enum::BoolEnum) {
             let offset = self.offset + 84;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn is_maker(&mut self, value: BoolEnum) {
+        pub fn is_maker(&mut self, value: bool_enum::BoolEnum) {
             let offset = self.offset + 85;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn is_allocator(&mut self, value: BoolEnum) {
+        pub fn is_allocator(&mut self, value: bool_enum::BoolEnum) {
             let offset = self.offset + 86;
             self.get_buf_mut().put_u8_at(offset, value as u8)
         }
@@ -406,6 +421,7 @@ pub mod encoder {
 
 pub mod decoder {
     use super::*;
+    use message_header_codec::*;
 
     #[derive(Clone, Copy, Debug, Default)]
     pub struct AccountAllocationsResponseDecoder<'a> {
@@ -415,6 +431,13 @@ pub mod decoder {
         limit: usize,
         pub acting_block_length: u16,
         pub acting_version: u16,
+    }
+
+    impl ActingVersion for AccountAllocationsResponseDecoder<'_> {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.acting_version
+        }
     }
 
     impl<'a> Reader<'a> for AccountAllocationsResponseDecoder<'a> {
@@ -459,14 +482,14 @@ pub mod decoder {
             self.limit - self.offset
         }
 
-        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>) -> Self {
+        pub fn header(self, mut header: MessageHeaderDecoder<ReadBuf<'a>>, offset: usize) -> Self {
             debug_assert_eq!(SBE_TEMPLATE_ID, header.template_id());
             let acting_block_length = header.block_length();
             let acting_version = header.version();
 
             self.wrap(
                 header.parent().unwrap(),
-                message_header_codec::ENCODED_LENGTH,
+                offset + message_header_codec::ENCODED_LENGTH,
                 acting_block_length,
                 acting_version,
             )
@@ -482,10 +505,20 @@ pub mod decoder {
     #[derive(Debug, Default)]
     pub struct AllocationsDecoder<P> {
         parent: Option<P>,
-        block_length: usize,
+        block_length: u16,
         count: u32,
         index: usize,
         offset: usize,
+    }
+
+    impl<'a, P> ActingVersion for AllocationsDecoder<P>
+    where
+        P: Reader<'a> + ActingVersion + Default,
+    {
+        #[inline]
+        fn acting_version(&self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
+        }
     }
 
     impl<'a, P> Reader<'a> for AllocationsDecoder<P>
@@ -500,7 +533,7 @@ pub mod decoder {
 
     impl<'a, P> Decoder<'a> for AllocationsDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         #[inline]
         fn get_limit(&self) -> usize {
@@ -518,11 +551,11 @@ pub mod decoder {
 
     impl<'a, P> AllocationsDecoder<P>
     where
-        P: Decoder<'a> + Default,
+        P: Decoder<'a> + ActingVersion + Default,
     {
         pub fn wrap(mut self, mut parent: P) -> Self {
             let initial_offset = parent.get_limit();
-            let block_length = parent.get_buf().get_u16_at(initial_offset) as usize;
+            let block_length = parent.get_buf().get_u16_at(initial_offset);
             let count = parent.get_buf().get_u32_at(initial_offset + 2);
             parent.set_limit(initial_offset + 6);
             self.parent = Some(parent);
@@ -533,10 +566,15 @@ pub mod decoder {
             self
         }
 
-        /// group token - Token{signal=BEGIN_GROUP, name='allocations', referencedName='null', description='null', packageName='null', id=100, version=0, deprecated=0, encodedLength=87, offset=0, componentTokenCount=87, encoding=Encoding{presence=REQUIRED, primitiveType=null, byteOrder=LITTLE_ENDIAN, minValue=null, maxValue=null, nullValue=null, constValue=null, characterEncoding='null', epoch='null', timeUnit=null, semanticType='null'}}
+        /// group token - Token{signal=BEGIN_GROUP, name='allocations', referencedName='null', description='null', packageName='null', id=100, version=0, deprecated=0, encodedLength=87, offset=0, componentTokenCount=88, encoding=Encoding{presence=REQUIRED, primitiveType=null, byteOrder=LITTLE_ENDIAN, minValue=null, maxValue=null, nullValue=null, constValue=null, characterEncoding='null', epoch='null', timeUnit=null, semanticType='null'}}
         #[inline]
         pub fn parent(&mut self) -> SbeResult<P> {
             self.parent.take().ok_or(SbeErr::ParentNotSet)
+        }
+
+        #[inline]
+        pub fn acting_version(&mut self) -> u16 {
+            self.parent.as_ref().unwrap().acting_version()
         }
 
         #[inline]
@@ -552,7 +590,7 @@ pub mod decoder {
             }
             if let Some(parent) = self.parent.as_mut() {
                 self.offset = parent.get_limit();
-                parent.set_limit(self.offset + self.block_length);
+                parent.set_limit(self.offset + self.block_length as usize);
                 self.index = index;
                 Ok(Some(index))
             } else {
@@ -572,7 +610,7 @@ pub mod decoder {
             self.get_buf().get_i8_at(self.offset + 1)
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-128' }
+        /// primitive field - 'OPTIONAL' { null_value: '-128_i8' }
         #[inline]
         pub fn commission_exponent(&self) -> Option<i8> {
             let value = self.get_buf().get_i8_at(self.offset + 2);
@@ -591,7 +629,7 @@ pub mod decoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn allocation_type(&self) -> AllocationType {
+        pub fn allocation_type(&self) -> allocation_type::AllocationType {
             self.get_buf().get_u8_at(self.offset + 11).into()
         }
 
@@ -601,7 +639,7 @@ pub mod decoder {
             self.get_buf().get_i64_at(self.offset + 12)
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn order_list_id(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 20);
@@ -612,7 +650,7 @@ pub mod decoder {
             }
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn source_trade_id(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 28);
@@ -623,7 +661,7 @@ pub mod decoder {
             }
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn source_allocation_id(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 36);
@@ -652,7 +690,7 @@ pub mod decoder {
             self.get_buf().get_i64_at(self.offset + 60)
         }
 
-        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808' }
+        /// primitive field - 'OPTIONAL' { null_value: '-9223372036854775808_i64' }
         #[inline]
         pub fn commission(&self) -> Option<i64> {
             let value = self.get_buf().get_i64_at(self.offset + 68);
@@ -671,19 +709,19 @@ pub mod decoder {
 
         /// REQUIRED enum
         #[inline]
-        pub fn is_buyer(&self) -> BoolEnum {
+        pub fn is_buyer(&self) -> bool_enum::BoolEnum {
             self.get_buf().get_u8_at(self.offset + 84).into()
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn is_maker(&self) -> BoolEnum {
+        pub fn is_maker(&self) -> bool_enum::BoolEnum {
             self.get_buf().get_u8_at(self.offset + 85).into()
         }
 
         /// REQUIRED enum
         #[inline]
-        pub fn is_allocator(&self) -> BoolEnum {
+        pub fn is_allocator(&self) -> bool_enum::BoolEnum {
             self.get_buf().get_u8_at(self.offset + 86).into()
         }
 

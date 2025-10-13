@@ -71,11 +71,41 @@ impl AllowedSelfTradePreventionModes {
         };
         self
     }
+
+    #[inline]
+    pub fn get_decrement(&self) -> bool {
+        0 != self.0 & (1 << 4)
+    }
+
+    #[inline]
+    pub fn set_decrement(&mut self, value: bool) -> &mut Self {
+        self.0 = if value {
+            self.0 | (1 << 4)
+        } else {
+            self.0 & !(1 << 4)
+        };
+        self
+    }
+
+    #[inline]
+    pub fn get_non_representable(&self) -> bool {
+        0 != self.0 & (1 << 7)
+    }
+
+    #[inline]
+    pub fn set_non_representable(&mut self, value: bool) -> &mut Self {
+        self.0 = if value {
+            self.0 | (1 << 7)
+        } else {
+            self.0 & !(1 << 7)
+        };
+        self
+    }
 }
 impl core::fmt::Debug for AllowedSelfTradePreventionModes {
     #[inline]
-    fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::fmt::Result {
-        write!(fmt, "AllowedSelfTradePreventionModes[none(0)={},expire_taker(1)={},expire_maker(2)={},expire_both(3)={}]",
-            self.get_none(),self.get_expire_taker(),self.get_expire_maker(),self.get_expire_both(),)
+    fn fmt(&self, fmt: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(fmt, "AllowedSelfTradePreventionModes[none(0)={},expire_taker(1)={},expire_maker(2)={},expire_both(3)={},decrement(4)={},non_representable(7)={}]",
+            self.get_none(),self.get_expire_taker(),self.get_expire_maker(),self.get_expire_both(),self.get_decrement(),self.get_non_representable(),)
     }
 }
