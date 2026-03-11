@@ -2,6 +2,7 @@
 members = [
     "spot_sbe",
     "sbe-sample-app",
+    "spot_stream",
 ]
 resolver = "2"
 
