@@ -110,12 +110,14 @@ pub mod ticker_mini_response_codec;
 pub mod ticker_symbol_full_response_codec;
 pub mod ticker_symbol_mini_response_codec;
 pub mod time_in_force;
+pub mod tp_lus_filter_lock_event_codec;
 pub mod tp_lus_sell_filter_codec;
 pub mod trades_response_codec;
 pub mod trailing_delta_filter_codec;
 pub mod user_data_stream_ping_response_codec;
 pub mod user_data_stream_start_response_codec;
 pub mod user_data_stream_stop_response_codec;
+pub mod user_data_stream_subscribe_listen_token_response_codec;
 pub mod user_data_stream_subscribe_response_codec;
 pub mod user_data_stream_unsubscribe_response_codec;
 pub mod var_string_8_codec;
@@ -127,7 +129,7 @@ pub mod web_socket_session_status_response_codec;
 pub mod web_socket_session_subscriptions_response_codec;
 
 pub const SBE_SCHEMA_ID: u16 = 3;
-pub const SBE_SCHEMA_VERSION: u16 = 1;
+pub const SBE_SCHEMA_VERSION: u16 = 2;
 pub const SBE_SEMANTIC_VERSION: &str = "5.2";
 
 pub type SbeResult<T> = core::result::Result<T, SbeErr>;

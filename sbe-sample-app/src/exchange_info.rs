@@ -227,6 +227,7 @@ fn serialize_self_trade_prevention_mode<S: Serializer>(
         ExpireMaker => "EXPIRE_MAKER",
         ExpireBoth => "EXPIRE_BOTH",
         Decrement => "DECREMENT",
+        Transfer => "TRANSFER",
         NonRepresentable => "NON_REPRESENTABLE",
         NullVal => return serializer.serialize_none(),
     };
@@ -237,7 +238,7 @@ fn serialize_allowed_self_trade_prevention_modes<S: Serializer>(
     val: &AllowedSelfTradePreventionModes,
     serializer: S,
 ) -> Result<S::Ok, S::Error> {
-    let mut strings = Vec::with_capacity(4);
+    let mut strings = Vec::with_capacity(7);
     if val.get_none() {
         strings.push("NONE");
     }
@@ -252,6 +253,9 @@ fn serialize_allowed_self_trade_prevention_modes<S: Serializer>(
     }
     if val.get_decrement() {
         strings.push("DECREMENT");
+    }
+    if val.get_transfer() {
+        strings.push("TRANSFER");
     }
     if val.get_non_representable() {
         strings.push("NON_REPRESENTABLE");
