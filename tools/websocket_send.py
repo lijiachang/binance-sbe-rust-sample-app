@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+# pip install websocket-client
 from websocket import create_connection
 
 parser = argparse.ArgumentParser(
