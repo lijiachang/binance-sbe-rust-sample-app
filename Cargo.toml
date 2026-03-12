@@ -4,6 +4,7 @@ members = [
     "sbe-sample-app",
     "spot_stream",
     "sbe-bookticker-app",
+    "bookticker-benchmark",
 ]
 resolver = "2"
 
