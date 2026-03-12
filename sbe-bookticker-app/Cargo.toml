@@ -1,0 +1,15 @@
+[package]
+name = "sbe-bookticker-app"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.73"
+license = "LGPL-3.0-or-later"
+publish = false
+
+[dependencies]
+anyhow = "1.0.102"
+futures-util = { version = "0.3.32", features = ["sink"] }
+tokio = { version = "=1.32.0", features = ["rt-multi-thread", "macros", "net", "time", "signal", "fs", "io-util", "sync"] }
+tokio-tungstenite = { version = "=0.20.1", features = ["rustls-tls-webpki-roots"] }
+url = "=2.4.1"
+
